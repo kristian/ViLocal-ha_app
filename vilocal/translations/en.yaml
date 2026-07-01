@@ -44,6 +44,9 @@ configuration:
       name:
         name: Name
         description: "Human-readable name for this thermostat (e.g., Bedroom)"
+      entity_id:
+        name: Entity ID
+        description: "Optional Home Assistant entity id slug (without domain). Defaults to a slug generated from Name, e.g. Gäste WC -> gaste_wc"
       suggested_area:
         name: Suggested Area
         description: "Optional Home Assistant area/room for this device"
@@ -60,6 +63,9 @@ configuration:
       name:
         name: Name
         description: "Human-readable name for this climate sensor"
+      entity_id:
+        name: Entity ID
+        description: "Optional Home Assistant entity id slug (without domain). Defaults to a slug generated from Name, e.g. Gäste WC -> gaste_wc"
       suggested_area:
         name: Suggested Area
         description: "Optional Home Assistant area/room for this device"

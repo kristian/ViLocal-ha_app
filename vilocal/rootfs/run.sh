@@ -52,6 +52,24 @@ device_discovery_prefix = "$MQTT_DISCOVERY_PREFIX"
 
 EOF
 
+normalize_entity_id() {
+    local value="$1"
+
+    # Split camelCase/PascalCase boundaries before lowercasing.
+    value=$(printf '%s' "$value" | sed -E 's/([[:lower:][:digit:]])([[:upper:]])/\1_\2/g')
+
+    # Transliterate UTF-8 names to ASCII so IDs stay HA-friendly (e.g. Gäste -> Gaste).
+    if command -v iconv >/dev/null 2>&1; then
+        value=$(printf '%s' "$value" | iconv -f UTF-8 -t ASCII//TRANSLIT 2>/dev/null || printf '%s' "$value")
+    fi
+
+    value=$(printf '%s' "$value" \
+        | tr '[:upper:]' '[:lower:]' \
+        | sed -E 's/[^a-z0-9]+/_/g; s/^_+//; s/_+$//; s/_+/_/g')
+
+    printf '%s' "$value"
+}
+
 # Add thermostats if configured
 THERMOSTATS=$(bashio::config 'thermostats')
 if [ -n "$THERMOSTATS" ] && [ "$THERMOSTATS" != "[]" ]; then
@@ -63,10 +81,19 @@ if [ -n "$THERMOSTATS" ] && [ "$THERMOSTATS" != "[]" ]; then
     for ((i=0; i<THERMOSTAT_COUNT; i++)); do
         SERIAL=$(jq -r ".thermostats[$i].serial_no" "/data/options.json")
         NAME=$(jq -r ".thermostats[$i].name" "/data/options.json")
+        ENTITY_ID=$(jq -r ".thermostats[$i].entity_id // empty" "/data/options.json")
         AREA=$(jq -r ".thermostats[$i].suggested_area // empty" "/data/options.json")
         CLIMATE_SENSOR=$(jq -r ".thermostats[$i].climate_sensor_serial_no // empty" "/data/options.json")
 
-        THERMOSTAT_ID="thermostat_${i}"
+        if [ -z "$ENTITY_ID" ]; then
+            ENTITY_ID=$(normalize_entity_id "$NAME")
+        fi
+
+        THERMOSTAT_ID="$ENTITY_ID"
+        if [ -z "$THERMOSTAT_ID" ]; then
+            THERMOSTAT_ID="thermostat_${i}"
+        fi
+
         echo "" >> "$VILOCAL_CONFIG_FILE"
         echo "[thermostats.${THERMOSTAT_ID}]" >> "$VILOCAL_CONFIG_FILE"
         echo "serial_no = \"$SERIAL\"" >> "$VILOCAL_CONFIG_FILE"
@@ -94,9 +121,18 @@ if [ -n "$CLIMATE_SENSORS" ] && [ "$CLIMATE_SENSORS" != "[]" ]; then
     for ((i=0; i<SENSOR_COUNT; i++)); do
         SERIAL=$(jq -r ".climate_sensors[$i].serial_no" "/data/options.json")
         NAME=$(jq -r ".climate_sensors[$i].name" "/data/options.json")
+        ENTITY_ID=$(jq -r ".climate_sensors[$i].entity_id // empty" "/data/options.json")
         AREA=$(jq -r ".climate_sensors[$i].suggested_area // empty" "/data/options.json")
 
-        SENSOR_ID="sensor_${i}"
+        if [ -z "$ENTITY_ID" ]; then
+            ENTITY_ID=$(normalize_entity_id "$NAME")
+        fi
+
+        SENSOR_ID="$ENTITY_ID"
+        if [ -z "$SENSOR_ID" ]; then
+            SENSOR_ID="sensor_${i}"
+        fi
+
         echo "" >> "$VILOCAL_CONFIG_FILE"
         echo "[climate_sensors.${SENSOR_ID}]" >> "$VILOCAL_CONFIG_FILE"
         echo "serial_no = \"$SERIAL\"" >> "$VILOCAL_CONFIG_FILE"

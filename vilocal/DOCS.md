@@ -107,6 +107,7 @@ For each thermostat / climate sensor, provide:
 
 - Serial number as found in your ViCare app or the printed label on the device
 - Friendly name (e.g. "Living Room Thermostat")
+- Optional Entity ID override (slug only, without domain). If left empty, it is generated from Name using Home Assistant-like slug rules (lowercase, spaces/camel-case converted to `_`, diacritics normalized, e.g. `Gäste WC` -> `gaste_wc`).
 - Suggested area (optional)
 - For thermostats specifically, you can link a climate sensor serial number (optional). This will result in the HA thermostat using the climate sensor values instead of the built-in values of the thermostat.
 
