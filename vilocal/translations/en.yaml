@@ -1,0 +1,84 @@
+configuration:
+  network_key:
+    name: Network Key
+    description: "ZigBee network encryption key (32 hex characters). See README for instructions on capturing this from your ViCare network."
+  capture:
+    name: Capture Settings
+    description: Configure how ViLocal receives ZigBee packets
+    fields:
+      source:
+        name: Capture Source
+        description: "embersniff: connect to an Ember packet stream endpoint, tcpdump: read packets from a local interface, whsniff: capture by ZigBee channel and stream to ViLocal."
+      interface:
+        name: Interface / Path
+        description: "For embersniff: serial/TCP path (e.g., /dev/ttyUSB0 or tcp://192.168.1.42:6638). For tcpdump: local interface name (e.g., enx001fee00295e). Not used by whsniff."
+      channel:
+        name: Channel
+        description: "ZigBee channel to sniff (11-26). Used by embersniff and whsniff."
+  mqtt:
+    name: MQTT Settings
+    description: Configure MQTT broker connection for publishing device attributes
+    fields:
+      url:
+        name: Broker URL
+        description: "MQTT broker connection URL (e.g., mqtt://192.168.1.10:1883)"
+      username:
+        name: Username
+        description: MQTT broker username
+      password:
+        name: Password
+        description: MQTT broker password
+      topic:
+        name: Topic
+        description: Base topic for publishing device attributes
+      device_discovery_prefix:
+        name: Discovery Prefix
+        description: "Home Assistant MQTT Discovery prefix (default: homeassistant)"
+  thermostats:
+    name: Thermostats
+    description: "Configure known ViCare thermostats with their serial numbers and optional associated climate sensors"
+    fields:
+      serial_no:
+        name: Serial Number
+        description: "Device serial number / EUI-64 ID (format: AB-CD-EF-12-34-56-78-90). Find in ViCare app device settings."
+      name:
+        name: Name
+        description: "Human-readable name for this thermostat (e.g., Bedroom)"
+      suggested_area:
+        name: Suggested Area
+        description: "Optional Home Assistant area/room for this device"
+      climate_sensor_serial_no:
+        name: Climate Sensor
+        description: "Optional: Serial number of associated climate sensor for better temperature/humidity readings"
+  climate_sensors:
+    name: Climate Sensors
+    description: "Configure known ViCare climate (temperature/humidity) sensors"
+    fields:
+      serial_no:
+        name: Serial Number
+        description: "Device serial number / EUI-64 ID (format: FF-EE-DD-CC-BB-AA-00-00). Find in ViCare app device settings."
+      name:
+        name: Name
+        description: "Human-readable name for this climate sensor"
+      suggested_area:
+        name: Suggested Area
+        description: "Optional Home Assistant area/room for this device"
+  advanced:
+    name: Advanced Settings
+    description: Optional advanced controls for packet decoding and logging
+    fields:
+      publish_unknown_devices:
+        name: Publish Unknown Devices
+        description: "Automatically publish discovered devices not listed in Thermostats or Climate Sensors"
+      buffer_format:
+        name: Buffer Format
+        description: "Encoding format used for binary payloads published to MQTT"
+      unwrap_layers:
+        name: Unwrap Layers
+        description: "Protocol layers to unwrap before ZigBee decoding (eth, ip4, ip6, tcp, udp, zep). Leave empty for direct IEEE 802.15.4 input."
+      add_cli_args:
+        name: Additional Capture CLI Arguments
+        description: "Optional extra flags appended to the selected capture tool (examples: tcpdump: -n -vvv -s 0, ember-sniff: -v -P 10)."
+      log_level:
+        name: Log Level
+        description: "ViLocal log verbosity"

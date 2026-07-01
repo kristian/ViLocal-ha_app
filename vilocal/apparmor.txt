@@ -1,0 +1,85 @@
+#include <tunables/global>
+
+profile vilocal flags=(rw attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/ssl_certs>
+
+  # Capabilities required for network operations
+  capability net_bind_service,
+  capability setuid,
+  capability setgid,
+  capability sys_chroot,
+  capability dac_override,
+
+  # Allow access to necessary system files
+  /sys/kernel/debug/kprobes/blacklist r,
+  /proc/sys/kernel/cap_last_cap r,
+  /etc/ld.so.cache r,
+  /etc/ld.so.conf r,
+  /etc/ld.so.conf.d/ r,
+  /lib/ld-*.so* rm,
+  /lib64/ld-*.so* rm,
+  /usr/lib/ld-*.so* rm,
+  /usr/lib64/ld-*.so* rm,
+
+  # Allow Node.js runtime
+  /usr/bin/node rmix,
+  /usr/bin/npm rmix,
+  /usr/bin/yarn rmix,
+  /usr/bin/corepack rmix,
+
+  # Allow access to app directory
+  /app/ r,
+  /app/** rmix,
+
+  # Allow access to data directory (configuration and persistent storage)
+  /data/ rw,
+  /data/** rw,
+
+  # Allow reading addon configuration
+  /data/options.json r,
+
+  # Allow reading timezone data
+  /usr/share/zoneinfo/ r,
+  /usr/share/zoneinfo/** r,
+
+  # Allow network access
+  network inet stream,
+  network inet dgram,
+  network inet6 stream,
+  network inet6 dgram,
+
+  # Allow USB device access (for ZigBee dongles)
+  /dev/ttyUSB* rw,
+  /dev/ttyACM* rw,
+  /dev/bus/usb/ r,
+  /dev/bus/usb/** rw,
+
+  # Allow sysfs for device information
+  @{sys}/ r,
+  @{sys}/** r,
+
+  # Allow proc for process information
+  /proc/self/** r,
+  /proc/sys/kernel/random/uuid r,
+
+  # Allow access to /tmp and /var
+  /tmp/ rw,
+  /tmp/** rw,
+  /var/tmp/ rw,
+  /var/tmp/** rw,
+
+  # Allow execution of helper utilities
+  /bin/bash x,
+  /bin/sh x,
+  /usr/bin/sudo x,
+  /usr/bin/tcpdump x,
+  /usr/local/bin/ember-sniff x,
+  /usr/local/bin/whsniff x,
+
+  # Allow reading environment
+  /etc/passwd r,
+  /etc/group r,
+  /etc/nsswitch.conf r,
+}

@@ -1,0 +1,54 @@
+# Git ignore file for ViLocal Home Assistant App repository
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.pyc
+*.class
+*.jar
+
+# Node/npm
+node_modules/
+npm-debug.log
+yarn-error.log
+.yarn/cache
+.yarn/install-state.gz
+
+# Docker
+.dockerignore
+docker-compose.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.Thumbs.db
+
+# Local development
+local-config.toml
+*.local
+
+# Logs
+logs/
+*.log
+
+# Temp files
+*.tmp
+/tmp
+/temp
+
+# Build output
+dist/
+build/
+out/
+
+# Environment
+.env
+.env.local
