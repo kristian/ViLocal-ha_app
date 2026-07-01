@@ -146,9 +146,12 @@ fi
 
 bashio::log.info "Configuration generated at $VILOCAL_CONFIG_FILE"
 
-# Dump the configuration file for debugging (hiding network key)
+# Dump the configuration file for debugging (hiding secrets)
 bashio::log.info "Dumping configuration file:"
-sed 's/network_key = ".*"/network_key = "****"/' "$VILOCAL_CONFIG_FILE" | while read -r line; do
+sed -E \
+    -e 's/(network_key[[:space:]]*=[[:space:]]*").*(")/\1****\2/' \
+    -e 's/(password[[:space:]]*=[[:space:]]*").*(")/\1****\2/' \
+    "$VILOCAL_CONFIG_FILE" | while read -r line; do
     bashio::log.info "$line"
 done
 
