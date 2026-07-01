@@ -10,8 +10,7 @@ RUN apk add --no-cache \
     ca-certificates \
     libusb && \
     npm install -g corepack ember-sniff && \
-    corepack enable && \
-    corepack prepare yarn@4.12.0 --activate
+    corepack enable
 
 # Build and install whsniff (CC2531 sniffer tool)
 RUN apk add --no-cache --virtual .whsniff-build-deps \
