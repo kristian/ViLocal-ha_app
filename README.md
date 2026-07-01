@@ -21,7 +21,7 @@ In Home Assistant:
 
 ## Changelog
 
-See [CHANGELOG](CHANGELOG.md) for release history and version information.
+See [CHANGELOG](./vilocal/CHANGELOG.md) for release history and version information.
 
 ## License
 
