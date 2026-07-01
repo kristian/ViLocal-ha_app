@@ -70,7 +70,6 @@ profile vilocal flags=(attach_disconnected,mediate_deleted) {
     /usr/local/bin/whsniff rix,
     /etc/passwd r,
     /etc/group r,
-    /etc/nsswitch.conf r,
     /etc/ssl/ r,
     /etc/ssl/** r,
     /root/ r,
@@ -79,6 +78,15 @@ profile vilocal flags=(attach_disconnected,mediate_deleted) {
     /root/.cache/node/corepack/ rw,
     /root/.cache/node/corepack/** rw,
     /dev/tty rw,
+
+    # DNS / name resolution
+    /etc/resolv.conf r,
+    /etc/hosts r,
+    /etc/host.conf r,
+    /etc/nsswitch.conf r,
+    /etc/services r,
+    /run/systemd/resolve/resolv.conf r,
+    /run/systemd/resolve/stub-resolv.conf r,
 
     # Device access (USB for ZigBee dongles)
     /dev/ttyUSB* rw,
