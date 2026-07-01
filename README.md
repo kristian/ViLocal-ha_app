@@ -8,6 +8,17 @@ This repository only contains a single app:
 
 - [ViLocal Home Assistant App](./vilocal)
 
+Find the set-up instructions [here](./vilocal/DOCS.md).
+
+### Add the Repository
+
+In Home Assistant:
+
+1. Go to **Settings → Apps → Install app**
+2. Click the three-dot menu → **Repositories**
+3. Add: `https://github.com/kristian/ViLocal-ha_app`
+4. Search for "ViLocal" and install the app
+
 ## Changelog
 
 See [CHANGELOG](CHANGELOG.md) for release history and version information.

@@ -31,7 +31,7 @@ Currently ViLocal it is **read-only** (monitoring). Thermostat control coming in
 
 1. **Install sniffing hardware** (e.g. SMLIGHT SLZB-06M or Ubisys Wireshark stick, see [tested devices](https://github.com/kristian/zbtk/blob/main/docs/tested-capture-devices.md))
 2. **Capture your ZigBee network key** (see [ViLocal docs](https://github.com/kristian/ViLocal#set-up--installation))
-3. **Install this app** from Home Assistant add-on store
+3. **Install this app** from Home Assistant app menu
 4. **Configure MQTT** and enter your network key
 5. **Add thermostats/climate sensors**
 6. **View devices** in Home Assistant
@@ -41,7 +41,7 @@ Currently ViLocal it is **read-only** (monitoring). Thermostat control coming in
 ### Requirements
 
 - Home Assistant (OS, Container, or Supervised)
-- MQTT broker (use Mosquitto add-on)
+- MQTT broker (best use Mosquitto app)
 - ZigBee sniffing hardware
 - ZigBee network key (captured from your network, see [ViLocal instructions](https://github.com/kristian/ViLocal#set-up--installation))
 
@@ -49,20 +49,14 @@ Currently ViLocal it is **read-only** (monitoring). Thermostat control coming in
 
 In Home Assistant:
 
-1. Go to **Settings → Add-ons → Add-on Store**
+1. Go to **Settings → Apps → Install app**
 2. Click the three-dot menu → **Repositories**
 3. Add: `https://github.com/kristian/ViLocal-ha_app`
 4. Search for "ViLocal" and install the app
 
-Or directly:
-
-```text
-https://github.com/kristian/ViLocal-ha_app
-```
-
 ### Configure the App via the UI
 
-1. Open Settings -> Add-ons -> ViLocal.
+1. Open Settings -> App -> ViLocal.
 2. Open Configuration.
 3. Fill in each section below.
 4. Save.
