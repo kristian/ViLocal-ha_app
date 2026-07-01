@@ -8,6 +8,7 @@ arch:
   - amd64
 init: false
 startup: services
+image: "ghcr.io/kristian/vilocal-ha_app"
 map:
   - share:rw
   - addon_config:rw
