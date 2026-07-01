@@ -73,6 +73,11 @@ profile vilocal flags=(attach_disconnected,mediate_deleted) {
     /etc/nsswitch.conf r,
     /etc/ssl/ r,
     /etc/ssl/** r,
+    /root/ r,
+    /root/.cache/ rw,
+    /root/.cache/node/ rw,
+    /root/.cache/node/corepack/ rw,
+    /root/.cache/node/corepack/** rw,
     /dev/tty rw,
 
     # Device access (USB for ZigBee dongles)
