@@ -1,5 +1,5 @@
 name: "ViLocal"
-version: "1.1.4"
+version: "1.2.0"
 slug: vilocal
 description: "Local integration for Viessmann ViCare devices"
 url: "https://github.com/kristian/ViLocal-ha_app"
@@ -12,6 +12,9 @@ image: "ghcr.io/kristian/vilocal-ha_app"
 map:
   - share:rw
   - addon_config:rw
+services:
+  - mqtt:need
+uart: true
 usb: true
 devices:
   - /dev/ttyUSB0

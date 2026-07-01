@@ -21,7 +21,7 @@ configuration:
     fields:
       url:
         name: Broker URL
-        description: "MQTT broker connection URL (e.g., mqtt://192.168.1.10:1883)"
+        description: "MQTT broker connection URL (e.g., mqtt://core-mosquitto:1883 if using Home Assistant add-on like Mosquitto, mqtt://192.168.1.10:1883 for external broker)"
       username:
         name: Username
         description: MQTT broker username
