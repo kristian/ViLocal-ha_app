@@ -59,6 +59,8 @@ profile vilocal flags=(attach_disconnected,mediate_deleted) {
     /usr/bin/sed rix,
     /usr/bin/mkfifo rix,
     /usr/bin/tcpdump rix,
+    /usr/local/lib/node_modules/ r,
+    /usr/local/lib/node_modules/** rm,
     /bin/bash rix,
     /bin/sh rix,
     /bin/mkdir rix,
