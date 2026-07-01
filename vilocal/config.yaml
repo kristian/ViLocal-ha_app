@@ -1,5 +1,5 @@
 name: "ViLocal"
-version: "1.2.2"
+version: "1.3.0"
 slug: vilocal
 description: "Local integration for Viessmann ViCare devices"
 url: "https://github.com/kristian/ViLocal-ha_app"
