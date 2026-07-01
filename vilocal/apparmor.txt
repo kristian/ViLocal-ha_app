@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile vilocal flags=(rw attach_disconnected,mediate_deleted) {
+profile vilocal flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
   #include <abstractions/nameservice>
   #include <abstractions/ssl_certs>
