@@ -47,7 +47,9 @@ Currently ViLocal it is **read-only** (monitoring). Thermostat control coming in
 
 ### Add the Repository
 
-In Home Assistant:
+[![Add ViLocal Home Assistant App Repository to your Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fkristian%2FViLocal-ha_app)
+
+Alternatively in Home Assistant:
 
 1. Go to **Settings → Apps → Install app**
 2. Click the three-dot menu → **Repositories**
