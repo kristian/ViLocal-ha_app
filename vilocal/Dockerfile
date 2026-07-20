@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     tcpdump \
     ca-certificates \
     libusb && \
-    npm install -g corepack ember-sniff@1.2.0 && \
+    npm install -g corepack ember-sniff@1.2.1 && \
     corepack enable
 
 # Build and install whsniff (CC2531 sniffer tool)
