@@ -16,6 +16,7 @@ ADD_CLI_ARGS=$(bashio::config 'advanced.add_cli_args')
 LOG_LEVEL=$(bashio::config 'advanced.log_level')
 BUFFER_FORMAT=$(bashio::config 'advanced.buffer_format')
 PUBLISH_UNKNOWN=$(bashio::config 'advanced.publish_unknown_devices')
+RETAIN_STATE=$(bashio::config 'advanced.retain_state')
 UNWRAP_LAYERS=$(jq -c '.advanced.unwrap_layers // []' '/data/options.json')
 
 # Validate required configuration
@@ -42,6 +43,7 @@ log_level = "$LOG_LEVEL"
 buffer_format = "$BUFFER_FORMAT"
 unwrap_layers = $UNWRAP_LAYERS
 publish_unknown_devices = $PUBLISH_UNKNOWN
+retain_state = $RETAIN_STATE
 
 [mqtt]
 url = "$MQTT_URL"

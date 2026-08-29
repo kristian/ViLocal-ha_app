@@ -93,7 +93,7 @@ Optional for any source in the advanced settings:
 
 - Set Additional Capture CLI Arguments to append raw flags for the selected tool
 - Example `tcpdump` args: `-n -vvv -s 0`
-- Example `ember-sniff` args: `-v -P 10`
+- Example `ember-sniff` args: `-v -P 10 -gg`
 
 MQTT broker settings:
 

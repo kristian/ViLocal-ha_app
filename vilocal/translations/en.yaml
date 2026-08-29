@@ -71,11 +71,14 @@ configuration:
         description: "Optional Home Assistant area/room for this device"
   advanced:
     name: Advanced Settings
-    description: Optional advanced controls for packet decoding and logging
+    description: "Optional advanced controls for packet decoding and logging"
     fields:
       publish_unknown_devices:
         name: Publish Unknown Devices
         description: "Automatically publish discovered devices not listed in Thermostats or Climate Sensors"
+      retain_state:
+        name: Retain State
+        description: "Retain the last known state of all published devices in the MQTT broker"
       buffer_format:
         name: Buffer Format
         description: "Encoding format used for binary payloads published to MQTT"

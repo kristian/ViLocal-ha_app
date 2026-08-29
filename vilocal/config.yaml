@@ -1,5 +1,5 @@
 name: "ViLocal"
-version: "1.4.3"
+version: "1.5.0"
 slug: vilocal
 description: "Local integration for Viessmann ViCare devices"
 url: "https://github.com/kristian/ViLocal-ha_app"
@@ -35,6 +35,7 @@ options:
   climate_sensors: []
   advanced:
     publish_unknown_devices: false
+    retain_state: false
     buffer_format: "hex"
     unwrap_layers: []
     add_cli_args: ""
@@ -64,6 +65,7 @@ schema:
       suggested_area: "str?"
   advanced:
     publish_unknown_devices: bool
+    retain_state: bool
     buffer_format: "list(hex|hex_upper|0x|0x_upper|base64|identity)"
     unwrap_layers: ["list(eth|ip4|ip6|tcp|udp|zep)"]
     add_cli_args: "str?"
