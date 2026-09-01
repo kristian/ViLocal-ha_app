@@ -76,6 +76,9 @@ configuration:
       publish_unknown_devices:
         name: Publish Unknown Devices
         description: "Automatically publish discovered devices not listed in Thermostats or Climate Sensors"
+      filter_pan_id:
+        name: Filter PAN-ID
+        description: "Optional filter for a specific ZigBee network / PAN (Personal Area Network) ID. Only packets from this network will be processed. Format: 4 hex characters (e.g., 1A2B). Leave empty for no filtering."
       retain_state:
         name: Retain State
         description: "Retain the last known state of all published devices in the MQTT broker"

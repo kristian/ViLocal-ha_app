@@ -16,6 +16,7 @@ ADD_CLI_ARGS=$(bashio::config 'advanced.add_cli_args')
 LOG_LEVEL=$(bashio::config 'advanced.log_level')
 BUFFER_FORMAT=$(bashio::config 'advanced.buffer_format')
 PUBLISH_UNKNOWN=$(bashio::config 'advanced.publish_unknown_devices')
+FILTER_PAN_ID=$(bashio::config 'advanced.filter_pan_id')
 RETAIN_STATE=$(bashio::config 'advanced.retain_state')
 UNWRAP_LAYERS=$(jq -c '.advanced.unwrap_layers // []' '/data/options.json')
 
@@ -156,6 +157,14 @@ sed -E \
     "$VILOCAL_CONFIG_FILE" | while read -r line; do
     bashio::log.info "$line"
 done
+
+# Set ZBTK environment variables
+if [ -n "$FILTER_PAN_ID" ] && [ "$FILTER_PAN_ID" != "null" ]; then
+    export ZBTK_PARSE_FILTER_DST_PAN="$FILTER_PAN_ID"
+    bashio::log.info "PAN ID $FILTER_PAN_ID filter set"
+else
+    bashio::log.info "No PAN ID filter set"
+fi
 
 # Start ViLocal with configured capture backend
 bashio::log.info "Starting ViLocal with capture source: $CAPTURE_SOURCE"
