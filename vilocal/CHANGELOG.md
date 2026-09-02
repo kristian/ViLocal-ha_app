@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-09-02
+
+- Bump ViLocal to 2.4.2, improving logging for multiple PAN-IDs and fixing an issue in regards of FCS / checksum validation of filtered packets.
+
 ## [1.5.1] - 2026-09-01
 
 - Bump ViLocal to 2.4.1, adding an option to filter for a specific network / PAN (Personal Area Network) ID in the advanced settings, allowing users to monitor only a specific ZigBee network when multiple networks are present
