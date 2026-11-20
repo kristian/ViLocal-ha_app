@@ -34,6 +34,16 @@ configuration:
       device_discovery_prefix:
         name: Discovery Prefix
         description: "Home Assistant MQTT Discovery prefix (default: homeassistant)"
+  control:
+    name: Thermostat Control
+    description: "Optional: control thermostats (change setpoints) from Home Assistant. Control is only supported through Ember Router (ember-router), which needs an adapter with EmberZNet (NCP) firmware that was already paired to your ViCare network as a repeater (see the Documentation tab). In case you are using an EmberZNet adapter for capturing, you can either share it for control, or use a dedicated adapter for control commands. See the ViLocal documentation for details."
+    fields:
+      enabled:
+        name: Enable Control
+        description: "Forward thermostat control commands to the ViCare network using ember-router. Leave disabled for capturing only. Note: This requires additional setup of your adapter as described in the documentation."
+      dedicated_interface:
+        name: Dedicated Control Interface / Path
+        description: "Optional: serial/TCP path of a second ember-router adapter used only for control (e.g., tcp://192.168.1.43:6638). If set, capture is never interrupted and can use any Capture Source. If empty, control runs in shared mode: the Capture Interface / Path adapter (Capture Source embersniff, paired with ember-router) is used for both capture and control, capture pauses briefly while a command is sent and Home Assistant shows requested setpoints immediately (optimistic mode)."
   thermostats:
     name: Thermostats
     description: "Configure known ViCare thermostats with their serial numbers and optional associated climate sensors"
@@ -91,6 +101,9 @@ configuration:
       add_cli_args:
         name: Additional Capture CLI Arguments
         description: "Optional extra flags appended to the selected capture tool (examples: tcpdump: -n -vvv -s 0, ember-sniff: -v -P 10)."
+      control_add_cli_args:
+        name: Additional Control CLI Arguments
+        description: "Optional extra flags appended to the ember-router write command used for thermostat control (example: -v)."
       log_level:
         name: Log Level
         description: "ViLocal log verbosity"

@@ -4,12 +4,13 @@
 
 ViLocal brings Viessmann ViCare thermostats and climate sensors into Home Assistant through MQTT **without requiring any cloud connectivity or Viessmann API subscriptions**.
 
-It works by passively sniffing ZigBee communication between your ViCare devices and coordinator / VitoConnect, capturing encrypted traffic and publishing device attributes to your local MQTT broker.
+It works by passively sniffing ZigBee communication between your ViCare devices and coordinator / VitoConnect, capturing encrypted traffic and publishing device attributes to your local MQTT broker. Optionally, thermostat setpoints can be changed from Home Assistant by forwarding commands to the ViCare network through Ember Router ([ember-router](https://github.com/kristian/ember-router)).
 
 ### Key Features
 
 ✅ **Completely Local** - No internet or cloud connectivity required<br>
 ✅ **Non-Intrusive** - Passive sniffing doesn't interfere with your ViCare network<br>
+✅ **Control Optional** - Thermostat control can be enabled optionally<br>
 ✅ **Zero Startup Cost** - Works with affordable ZigBee sniffing hardware<br>
 ✅ **MQTT Discovery** - Automatic Home Assistant entity creation<br>
 ✅ **Configurable** - Simple UI for MQTT settings and device configuration<br>
@@ -22,10 +23,7 @@ It works by passively sniffing ZigBee communication between your ViCare devices 
 
 **Important:**
 
-Currently ViLocal it is **read-only** (monitoring). Thermostat control coming in future releases.
-
-- Today, ViLocal is for monitoring and data collection (read-only)
-- Active control of thermostats is not supported (yet)
+By default ViLocal only monitors your devices (passive sniffing). Changing thermostat setpoints requires the optional thermostat control, see [Thermostat Control](#d-thermostat-control-optional) and additional set-up of [Ember Router](https://github.com/kristian/ember-router) and your ZigBee hardware / EmberZNet adapter.
 
 ## Quick Start
 
@@ -123,6 +121,22 @@ Only change advanced options when you have a clear reason:
 - Buffer format: keep default unless integration requires another format
 - Publish unknown devices: enable if you want data from unlisted devices
 - Unwrap layers: packet parsing tuning for special setups
+- Additional Control CLI Arguments: raw flags appended to the `ember-router write` command (e.g. `-v`), only used if control is enabled
+
+#### D. Thermostat Control (Optional)
+
+Control lets you change the heating setpoint of a thermostat from Home Assistant. Control is only supported through ember-router, which operates an adapter with EmberZNet (NCP) firmware as a ZigBee router ("ViCare Repeater") joined to your ViCare network.
+
+**Set-up (required once, outside of this app):**
+
+The adapter used for control must be joined to your ViCare network as a repeater before enabling control. This cannot be done from within the app. On a machine that can reach the adapter (with Node.js, `ember-router` and `zbtk` installed), follow [Enable Thermostat Writes](https://github.com/kristian/ViLocal#5-optional-enable-thermostat-writes) in the ViLocal instructions ("Set Up Ember Router"). In short: generate an install code, derive the link key, `ember-router reset`, add a "ViCare Repeater (Unterputz)" in the ViCare app using the adapter's EUI64 and the install code, then run `ember-router join`. Stop anything else using the adapter while pairing.
+
+Then enable control in the app configuration (**Thermostat Control**). Whether the capture adapter is shared depends on the Dedicated Control Interface / Path setting:
+
+- **Shared adapter** (Dedicated Control Interface / Path empty): The capture adapter is also used for control. Requires Capture Source `embersniff`, and the adapter must be the one paired in the previous step. While a command is sent, capture pauses briefly and may miss the command or the thermostat's response.
+- **Dedicated router** (Dedicated Control Interface / Path set, e.g. `tcp://192.168.1.43:6638`): A second adapter is used only for control. Capture can use any Capture Source and keeps running while commands are sent.
+
+In shared mode, optimistic climate control is enabled automatically: Home Assistant shows a requested setpoint right away instead of waiting for the thermostat's report, as capture may miss it while paused. A later captured report can still correct the display.
 
 ## FAQ
 
@@ -130,10 +144,10 @@ Only change advanced options when you have a clear reason:
 A: Yes! Everything is 100% local. No cloud connectivity required.
 
 **Q: Is this invasive to my ViCare network?**<br>
-A: No. ViLocal only listens passively - it doesn't send any commands or interfere with normal operations.
+A: No. ViLocal only listens passively by default. Only if you enable control, commands are sent to your thermostats through the configured ember-router adapter.
 
 **Q: Can I control my thermostats?**<br>
-A: Not yet. Current version is read-only (monitoring). Control is planned for future releases.
+A: Yes, optionally. Enable and set up thermostat control, see [Thermostat Control](#d-thermostat-control-optional).
 
 **Q: What hardware do I need?**<br>
 A: A ZigBee sniffing device like SMLIGHT SLZB-06M or Ubisys Wireshark stick. See [tested devices](https://github.com/kristian/zbtk/blob/main/docs/tested-capture-devices.md).

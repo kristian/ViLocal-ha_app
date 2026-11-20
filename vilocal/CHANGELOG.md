@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-19
+
+> [!NOTE]
+> This major release introduces support for controlling thermostats. In case you are already using an EmberZNet based adapter for capturing ZigBee traffic, the same adapter can be used for controlling your thermostats as well, following the set-up instructions in the documentation. Using a dedicated adapter for control is possible and recommended for more reliable operation. Both operation modes are described in the documentation.
+
+- Bump ViLocal to 3.0.0, enabling support for controlling climate controls for thermostats through ember-router. Bump ember-sniff and add ember-router as dependency. Set-up instructions for ember-router added to the documentation.
+
 ## [1.6.0] - 2026-11-19
 
 - Bump ViLocal to 2.5.0, smaller changes to climate controls for thermostats.
@@ -108,7 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full configuration UI for MQTT broker settings
 - Support for configurable thermostats and climate sensors
 - Automatic MQTT Discovery integration with Home Assistant
-- Support for embersniff sniffing source (SMLIGHT/Ubisys dongle)
+- Support for ember-sniff sniffing source (SMLIGHT/Ubisys dongle)
 - Support for tcpdump sniffing source (raw network interface)
 - Advanced settings: log level, buffer format, publish unknown devices
 - Comprehensive documentation and troubleshooting guide

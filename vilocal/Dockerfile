@@ -7,9 +7,10 @@ RUN apk add --no-cache \
     git \
     curl \
     tcpdump \
+    coreutils \
     ca-certificates \
     libusb && \
-    npm install -g corepack ember-sniff@1.4.1 && \
+    npm install -g corepack ember-sniff@1.5.0 ember-router@1.0.0 && \
     corepack enable
 
 # Build and install whsniff (CC2531 sniffer tool)
@@ -28,7 +29,7 @@ RUN apk add --no-cache --virtual .whsniff-build-deps \
 RUN cd /tmp && \
     git clone https://github.com/kristian/ViLocal.git && \
     cd ViLocal && \
-    git checkout refs/tags/v2.5.0 && \
+    git checkout refs/tags/v3.0.0 && \
     corepack yarn install --immutable && \
     mv /tmp/ViLocal /app
 

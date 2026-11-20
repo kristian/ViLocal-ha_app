@@ -1,5 +1,5 @@
 name: "ViLocal"
-version: "1.6.0"
+version: "2.0.0"
 slug: vilocal
 description: "Local integration for Viessmann ViCare devices"
 url: "https://github.com/kristian/ViLocal-ha_app"
@@ -31,6 +31,9 @@ options:
     password: ""
     topic: "ViLocal"
     device_discovery_prefix: "homeassistant"
+  control:
+    enabled: false
+    dedicated_interface: ""
   thermostats: []
   climate_sensors: []
   advanced:
@@ -40,6 +43,7 @@ options:
     buffer_format: "hex"
     unwrap_layers: []
     add_cli_args: ""
+    control_add_cli_args: ""
     log_level: "warn"
 schema:
   network_key: "match(^$|^[0-9a-fA-F]{32}$)"
@@ -53,6 +57,9 @@ schema:
     password: "password?"
     topic: "str"
     device_discovery_prefix: "str"
+  control:
+    enabled: bool
+    dedicated_interface: "str?"
   thermostats:
     - serial_no: "str"
       name: "str"
@@ -71,4 +78,5 @@ schema:
     buffer_format: "list(hex|hex_upper|0x|0x_upper|base64|identity)"
     unwrap_layers: ["list(eth|ip4|ip6|tcp|udp|zep)"]
     add_cli_args: "str?"
+    control_add_cli_args: "str?"
     log_level: "list(error|warn|info|verbose)"
