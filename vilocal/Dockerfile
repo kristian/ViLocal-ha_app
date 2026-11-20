@@ -10,7 +10,7 @@ RUN apk add --no-cache \
     coreutils \
     ca-certificates \
     libusb && \
-    npm install -g corepack ember-sniff@1.5.0 ember-router@1.0.0 && \
+    npm install -g corepack ember-sniff@1.5.1 ember-router@1.3.0 && \
     corepack enable
 
 # Build and install whsniff (CC2531 sniffer tool)

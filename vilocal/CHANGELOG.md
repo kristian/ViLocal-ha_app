@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-11-21
+
+- Bump ember-sniff to 1.5.1 fixing issues with graceful restarts and ember-router to 1.3.0 introducing the same graceful restarts, by setting `--graceful` / `-gg` as additional capture / control CLI arguments in the advanced settings.
+
 ## [2.0.0] - 2026-11-19
 
 > [!NOTE]
