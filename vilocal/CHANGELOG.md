@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-11-22
+
+> [!NOTE]
+> If you share one adapter for monitoring and controlling your thermostats, ViLocal now briefly brings the router back online after 30 minutes without a control request. This helps prevent ViCare from marking it offline. You can change the interval in Advanced Settings or set it to 0 to turn it off.
+>
+> Thermostats now show **Heat** mode in Home Assistant, the previous "Auto" mode was not the correct status for thermostats. With control enabled, you can also use Home Assistant's **MQTT: Publish** action to read or change individual ZigBee settings of your ViCare devices. The Documentation tab includes examples for both.
+
+- Bump ViLocal to 3.3.1, ember-sniff to 1.5.2, and ember-router to 2.2.0. Set the Home Assistant climate HVAC mode to `heat`.
+- Use the local `--router` socket for binary requests and replies with both shared and dedicated control adapters.
+- Keep the shared adapter visible to ViCare by resuming the router after 30 minutes of inactivity. Set `advanced.router_keepalive_minutes` to `0` to disable keepalive.
+- With control enabled, use Home Assistant's built-in `mqtt.publish` action to request ZigBee attribute reads and writes.
+
 ## [2.0.1] - 2026-11-21
 
 - Bump ember-sniff to 1.5.1 fixing issues with graceful restarts and ember-router to 1.3.0 introducing the same graceful restarts, by setting `--graceful` / `-gg` as additional capture / control CLI arguments in the advanced settings.

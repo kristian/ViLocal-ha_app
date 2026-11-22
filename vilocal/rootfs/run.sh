@@ -22,6 +22,7 @@ UNWRAP_LAYERS=$(jq -c '.advanced.unwrap_layers // []' '/data/options.json')
 CONTROL_ENABLED=$(bashio::config 'control.enabled')
 CONTROL_INTERFACE=$(bashio::config 'control.dedicated_interface')
 CONTROL_CLI_ARGS=$(bashio::config 'advanced.control_add_cli_args')
+ROUTER_KEEPALIVE_MINUTES=$(bashio::config 'advanced.router_keepalive_minutes' 30)
 
 # Validate required configuration
 if [ -z "$NETWORK_KEY" ]; then
@@ -32,13 +33,14 @@ fi
 # Prepare the (optional) ember-router launcher arguments for start.sh
 CONTROL_PREFIX=()
 OPTIMISTIC_CLIMATE_CONTROL=false
-CONTROL_CONFIG="pass_through_commands = false"
+CONTROL_ENABLED_TOML=false
 CONTROL_EXTRA_ARGS=()
 if [ -n "$CONTROL_CLI_ARGS" ] && [ "$CONTROL_CLI_ARGS" != "null" ]; then
     # shellcheck disable=SC2206
     CONTROL_EXTRA_ARGS=($CONTROL_CLI_ARGS)
 fi
 if [ "$CONTROL_ENABLED" = "true" ]; then
+    CONTROL_ENABLED_TOML=true
     if [ -z "$CONTROL_INTERFACE" ] || [ "$CONTROL_INTERFACE" = "null" ]; then
         CONTROL_MODE="shared"
         if [ "$CAPTURE_SOURCE" != "embersniff" ]; then
@@ -48,17 +50,30 @@ if [ "$CONTROL_ENABLED" = "true" ]; then
         CONTROL_ADAPTER="$CAPTURE_INTERFACE"
         # Capture pauses during control commands, so show requested setpoints right away
         OPTIMISTIC_CLIMATE_CONTROL=true
-        CONTROL_PREFIX=(--shared-adapter --forward ember-router write -p "$CONTROL_ADAPTER" "${CONTROL_EXTRA_ARGS[@]}" --)
+        CONTROL_PREFIX=(--shared-adapter)
+        if [ "$ROUTER_KEEPALIVE_MINUTES" -gt 0 ]; then
+            CONTROL_PREFIX+=(--router-keepalive "$ROUTER_KEEPALIVE_MINUTES")
+        fi
+        # Upgrades can carry graceful reconnect flags from the old write command.
+        # The shared socket uses a one-shot ember-router read, which rejects them.
+        SHARED_CONTROL_ARGS=()
+        for arg in "${CONTROL_EXTRA_ARGS[@]}"; do
+            if [[ "$arg" == --graceful ]]; then
+                continue
+            fi
+            if [[ "$arg" =~ ^-[gv]*g[gv]*$ ]]; then
+                arg=${arg//g/}
+                [ "$arg" != "-" ] || continue
+            fi
+            SHARED_CONTROL_ARGS+=("$arg")
+        done
+        CONTROL_EXTRA_ARGS=("${SHARED_CONTROL_ARGS[@]}")
     else
         CONTROL_MODE="dedicated"
         CONTROL_ADAPTER="$CONTROL_INTERFACE"
-        CONTROL_PREFIX=(--forward ember-router write -p "$CONTROL_ADAPTER" "${CONTROL_EXTRA_ARGS[@]}" --)
     fi
 
-    # Control always uses a named pipe for commands and the ember-router format
-    CONTROL_CONFIG="pass_through_commands = \"/tmp/vilocal-commands.pipe\"
-pass_through_format = \"ember-router\"
-ember_router_sequence_file = \"/data/.ember-router-seq\""
+    CONTROL_PREFIX+=(--router ember-router -p "$CONTROL_ADAPTER" "${CONTROL_EXTRA_ARGS[@]}" --)
     bashio::log.info "Thermostat control enabled (mode: $CONTROL_MODE, adapter: $CONTROL_ADAPTER)"
 fi
 
@@ -82,7 +97,8 @@ unwrap_layers = $UNWRAP_LAYERS
 publish_unknown_devices = $PUBLISH_UNKNOWN
 retain_state = $RETAIN_STATE
 optimistic_climate_control = $OPTIMISTIC_CLIMATE_CONTROL
-$CONTROL_CONFIG
+pass_through_commands = $CONTROL_ENABLED_TOML
+ember_router_sequence_file = "/data/.ember-router-seq"
 
 [mqtt]
 url = "$MQTT_URL"
@@ -90,6 +106,7 @@ username = "$MQTT_USERNAME"
 password = "$MQTT_PASSWORD"
 topic = "$MQTT_TOPIC"
 device_discovery_prefix = "$MQTT_DISCOVERY_PREFIX"
+router_requests = $CONTROL_ENABLED_TOML
 
 EOF
 
@@ -233,24 +250,8 @@ if [ "$CAPTURE_SOURCE" = "embersniff" ]; then
         exit 1
     fi
 
-    # Start ember-sniff stream and pipe to ViLocal
     bashio::log.info "Using embersniff capture interface/path: $CAPTURE_INTERFACE on channel: $CAPTURE_CHANNEL"
-    log_effective_command /app/start.sh "${CONTROL_PREFIX[@]}" ember-sniff -p "$CAPTURE_INTERFACE" -c "$CAPTURE_CHANNEL" "${CAPTURE_EXTRA_ARGS[@]}"
-
-    /app/start.sh "${CONTROL_PREFIX[@]}" ember-sniff -p "$CAPTURE_INTERFACE" -c "$CAPTURE_CHANNEL" "${CAPTURE_EXTRA_ARGS[@]}" 2>&1 &
-    VILOCAL_PID=$!
-
-    # Give it time to start
-    sleep 5
-
-    # Check if process is still running
-    if ! kill -0 $VILOCAL_PID 2>/dev/null; then
-        bashio::log.error "ViLocal failed to start!"
-        exit 1
-    fi
-
-    # Wait for process
-    wait $VILOCAL_PID
+    CAPTURE_ARGS=(ember-sniff -p "$CAPTURE_INTERFACE" -c "$CAPTURE_CHANNEL")
 
 elif [ "$CAPTURE_SOURCE" = "tcpdump" ]; then
     # Use tcpdump capture (requires interface to be set)
@@ -260,13 +261,7 @@ elif [ "$CAPTURE_SOURCE" = "tcpdump" ]; then
     fi
 
     bashio::log.info "Using tcpdump on interface: $CAPTURE_INTERFACE"
-    log_effective_command /app/start.sh "${CONTROL_PREFIX[@]}" tcpdump -i "$CAPTURE_INTERFACE" -U -w - "${CAPTURE_EXTRA_ARGS[@]}"
-
-    /app/start.sh "${CONTROL_PREFIX[@]}" tcpdump -i "$CAPTURE_INTERFACE" -U -w - "${CAPTURE_EXTRA_ARGS[@]}" 2>&1 &
-    VILOCAL_PID=$!
-
-    # Wait for process
-    wait $VILOCAL_PID
+    CAPTURE_ARGS=(tcpdump -i "$CAPTURE_INTERFACE" -U -w -)
 elif [ "$CAPTURE_SOURCE" = "whsniff" ]; then
     if [ -z "$CAPTURE_CHANNEL" ]; then
         bashio::log.error "capture.channel is required when using whsniff!"
@@ -274,17 +269,13 @@ elif [ "$CAPTURE_SOURCE" = "whsniff" ]; then
     fi
 
     bashio::log.info "Using whsniff on channel: $CAPTURE_CHANNEL"
-    log_effective_command /app/start.sh "${CONTROL_PREFIX[@]}" whsniff -c "$CAPTURE_CHANNEL" "${CAPTURE_EXTRA_ARGS[@]}"
-
-    /app/start.sh "${CONTROL_PREFIX[@]}" whsniff -c "$CAPTURE_CHANNEL" "${CAPTURE_EXTRA_ARGS[@]}" 2>&1 &
-    VILOCAL_PID=$!
-
-    # Wait for process
-    wait $VILOCAL_PID
+    CAPTURE_ARGS=(whsniff -c "$CAPTURE_CHANNEL")
 else
     bashio::log.error "Unknown capture source: $CAPTURE_SOURCE"
     exit 1
 fi
 
-bashio::log.error "ViLocal has exited unexpectedly!"
-exit 1
+START_COMMAND=(/app/start.sh "${CONTROL_PREFIX[@]}" "${CAPTURE_ARGS[@]}" "${CAPTURE_EXTRA_ARGS[@]}")
+log_effective_command "${START_COMMAND[@]}"
+
+exec "${START_COMMAND[@]}" 2>&1

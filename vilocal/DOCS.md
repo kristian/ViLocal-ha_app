@@ -121,7 +121,8 @@ Only change advanced options when you have a clear reason:
 - Buffer format: keep default unless integration requires another format
 - Publish unknown devices: enable if you want data from unlisted devices
 - Unwrap layers: packet parsing tuning for special setups
-- Additional Control CLI Arguments: raw flags appended to the `ember-router write` command (e.g. `-v`), only used if control is enabled
+- Additional Control CLI Arguments passes flags such as `-v` to ember-router when control is enabled. Use `-gg` for reconnects with a dedicated adapter. Shared mode opens a new router session for each request.
+- Shared Router Keepalive (`advanced.router_keepalive_minutes`) defaults to 30 minutes. After that interval without a request, the app briefly pauses capture and resumes the router to help ViCare keep it marked online. Set it to `0` to disable keepalive. This setting applies only to a shared adapter.
 
 #### D. Thermostat Control (Optional)
 
@@ -137,6 +138,36 @@ Then enable control in the app configuration (**Thermostat Control**). Whether t
 - **Dedicated router** (Dedicated Control Interface / Path set, e.g. `tcp://192.168.1.43:6638`): A second adapter is used only for control. Capture can use any Capture Source and keeps running while commands are sent.
 
 In shared mode, optimistic climate control is enabled automatically: Home Assistant shows a requested setpoint right away instead of waiting for the thermostat's report, as capture may miss it while paused. A later captured report can still correct the display.
+
+Both modes use a local socket for binary requests and replies between ViLocal and ember-router.
+
+#### E. Read and Write ZigBee Attributes from Home Assistant
+
+Turn on **Enable Control** and connect the Home Assistant MQTT integration to the same broker as ViLocal. Use **Developer Tools → Actions → MQTT: Publish** to send a request manually, or add an `mqtt.publish` action to an automation or script. ViLocal needs to have observed traffic from the target device to know its current ZigBee network address.
+
+Use a topic in the form `<mqtt.topic>/<eui>/<cluster>/<attribute>/<read or write>`. Replace `ViLocal` in the examples with your configured MQTT topic and use your device's hyphen-separated EUI. Always leave **Retain** off for requests.
+
+For example, this automation action reads the local temperature attribute.
+
+```yaml
+- action: mqtt.publish
+  data:
+    topic: "ViLocal/28-DB-A7-FF-FE-23-C0-0E/0x0201/0x0000/read"
+    payload: ""
+    retain: false
+```
+
+This action writes a heating setpoint of 22 °C. Send a JSON payload in the attribute's ZigBee units. If ViLocal cannot infer the data type, use a JSON object such as `{"type":"0x29","value":2200}`, where `0x29` is a signed 16-bit integer.
+
+```yaml
+- action: mqtt.publish
+  data:
+    topic: "ViLocal/28-DB-A7-FF-FE-23-C0-0E/0x0201/0x0012/write"
+    payload: "2200"
+    retain: false
+```
+
+ViLocal publishes successful reads and acknowledged write values to the attribute's MQTT state topic, `<mqtt.topic>/<eui>/<cluster>/<attribute>`. Use an MQTT trigger on that topic if an automation needs to react to updates. [ViLocal MQTT attribute command documentation](https://github.com/kristian/ViLocal/blob/v3.3.1/README.md#read-and-write-zigbee-attributes-over-mqtt)
 
 ## FAQ
 

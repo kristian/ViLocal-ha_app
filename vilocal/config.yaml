@@ -1,5 +1,5 @@
 name: "ViLocal"
-version: "2.0.1"
+version: "2.1.0"
 slug: vilocal
 description: "Local integration for Viessmann ViCare devices"
 url: "https://github.com/kristian/ViLocal-ha_app"
@@ -44,6 +44,7 @@ options:
     unwrap_layers: []
     add_cli_args: ""
     control_add_cli_args: ""
+    router_keepalive_minutes: 30
     log_level: "warn"
 schema:
   network_key: "match(^$|^[0-9a-fA-F]{32}$)"
@@ -79,4 +80,5 @@ schema:
     unwrap_layers: ["list(eth|ip4|ip6|tcp|udp|zep)"]
     add_cli_args: "str?"
     control_add_cli_args: "str?"
+    router_keepalive_minutes: "int(0,999999999)"
     log_level: "list(error|warn|info|verbose)"
