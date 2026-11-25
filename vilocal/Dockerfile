@@ -29,7 +29,7 @@ RUN apk add --no-cache --virtual .whsniff-build-deps \
 RUN cd /tmp && \
     git clone https://github.com/kristian/ViLocal.git && \
     cd ViLocal && \
-    git checkout refs/tags/v3.5.0 && \
+    git checkout refs/tags/v3.7.0 && \
     corepack yarn install --immutable && \
     mv /tmp/ViLocal /app
 

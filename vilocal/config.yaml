@@ -1,5 +1,5 @@
 name: "ViLocal"
-version: "2.2.0"
+version: "2.3.0"
 slug: vilocal
 description: "Local integration for Viessmann ViCare devices"
 url: "https://github.com/kristian/ViLocal-ha_app"
@@ -38,6 +38,7 @@ options:
   floor_thermostats: []
   climate_sensors: []
   advanced:
+    language: "en"
     publish_unknown_devices: false
     filter_pan_id: ""
     retain_state: false
@@ -81,6 +82,7 @@ schema:
       entity_id: "str?"
       suggested_area: "str?"
   advanced:
+    language: "list(en|de)"
     publish_unknown_devices: bool
     retain_state: bool
     filter_pan_id: "match(^$|^(?:0x)?[0-9a-fA-F]{4}$)"

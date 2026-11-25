@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-11-25
+
+> [!NOTE]
+> The app's configuration is now available in German when you use Home Assistant in German. To show default device and entity names in German, choose `de` under Advanced Settings → Language. The default is `en` for English. This setting will be removed when ViLocal can use the Home Assistant instance language automatically.
+>
+> With Enable Control on, you can use a window contact sensor in a Home Assistant automation to tell a radiator thermostat when the window opens or closes. Child Lock, Identification Mode, and Installation Mode are available as optional entities. They start disabled when first discovered, along with Firmware Version and Lifetime Motor Steps.
+>
+> Floor heating zones are now linked to their controller in Home Assistant. The controller shows the supply water temperature.
+
+- Bump ViLocal to 3.7.0 and pass the advanced language setting through `LANGUAGE`. [Upstream changelog](https://github.com/kristian/ViLocal/blob/v3.7.0/CHANGELOG.md)
+- Add German translations for the app configuration.
+- Add the External Window Open switch, Child Lock, and thermostat mode diagnostics. Valve position sensors now also use ViLocal's MQTT availability, and valve range learning ignores installation and cleaning movements.
+- Use Home Assistant-compatible nine-byte floor zone IDs in MQTT topics and discover the floor controller with a Supply Temperature sensor.
+- Support zone IDs and manufacturer-specific attributes in MQTT read and write requests.
+
 ## [2.2.0] - 2026-11-25
 
 > [!NOTE]

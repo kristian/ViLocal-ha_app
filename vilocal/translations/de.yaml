@@ -1,0 +1,137 @@
+configuration:
+  network_key:
+    name: Netzwerkschlüssel
+    description: "Zigbee-Netzwerkschlüssel (32 Hexadezimalzeichen). Die Anleitung zum Mitschneiden des Schlüssels deines ViCare-Netzwerks findest du in der Dokumentation."
+  capture:
+    name: Mitschnitt
+    description: "Einstellungen für den Empfang von Zigbee-Paketen"
+    fields:
+      source:
+        name: Mitschnittquelle
+        description: "ember-sniff empfängt Pakete von einem Ember-Adapter. tcpdump liest Pakete von einer lokalen Netzwerkschnittstelle. whsniff zeichnet Pakete auf einem Zigbee-Kanal auf."
+      interface:
+        name: Schnittstelle / Pfad
+        description: "Für ember-sniff einen seriellen oder TCP-Pfad angeben (z. B. /dev/ttyUSB0 oder tcp://192.168.1.42:6638). Für tcpdump den Namen der lokalen Netzwerkschnittstelle angeben (z. B. enx001fee00295e). whsniff verwendet nur die Kanalangabe."
+      channel:
+        name: Kanal
+        description: "Zigbee-Kanal für den Mitschnitt mit ember-sniff oder whsniff (11–26)"
+  mqtt:
+    name: MQTT-Einstellungen
+    description: "Verbindung zum MQTT-Broker, über den ViLocal die Gerätewerte veröffentlicht"
+    fields:
+      url:
+        name: Broker-URL
+        description: "Adresse des MQTT-Brokers (z. B. mqtt://core-mosquitto:1883 für die Mosquitto-App oder mqtt://192.168.1.10:1883 für einen externen Broker)"
+      username:
+        name: Benutzername
+        description: "Benutzername für den MQTT-Broker"
+      password:
+        name: Passwort
+        description: "Passwort für den MQTT-Broker"
+      topic:
+        name: Topic
+        description: "Basis-Topic, unter dem ViLocal die Gerätewerte veröffentlicht"
+      device_discovery_prefix:
+        name: Präfix für die MQTT-Erkennung
+        description: "Präfix für die MQTT-Erkennung in Home Assistant (Standardwert homeassistant)"
+  control:
+    name: Thermostatsteuerung
+    description: "Damit kannst du ViCare-Thermostate aus Home Assistant steuern. Dafür brauchst du einen Adapter mit EmberZNet-Firmware (NCP), der als Repeater mit deinem ViCare-Netzwerk gekoppelt ist. Du kannst einen EmberZNet-Adapter für Mitschnitt und Steuerung gemeinsam nutzen oder einen zweiten Adapter für die Steuerung einsetzen. Die Einrichtung ist im Tab Dokumentation beschrieben."
+    fields:
+      enabled:
+        name: Steuerung aktivieren
+        description: "Leitet Thermostatbefehle an das ViCare-Netzwerk weiter. Lass die Steuerung deaktiviert, wenn du die Geräte nur überwachen möchtest."
+      dedicated_interface:
+        name: Schnittstelle / Pfad für die Steuerung
+        description: "Optionaler serieller oder TCP-Pfad eines zweiten Adapters für ember-router (z. B. tcp://192.168.1.43:6638). Lass das Feld leer, um den gekoppelten Adapter mit ember-sniff gemeinsam zu nutzen. Dann pausiert der Mitschnitt kurz für jeden Befehl und Home Assistant zeigt die angeforderten Solltemperaturen der Heizkörper sofort an."
+  thermostats:
+    name: Heizkörperthermostate
+    description: "ViCare-Heizkörperthermostate mit Seriennummer und optional zugeordnetem Klimasensor einrichten"
+    fields:
+      serial_no:
+        name: Seriennummer
+        description: "Seriennummer oder EUI-64 des Geräts (z. B. AB-CD-EF-12-34-56-78-90). Du findest die Nummer in den Geräteeinstellungen der ViCare-App."
+      name:
+        name: Name
+        description: "Name des Thermostats in Home Assistant (z. B. Schlafzimmer)"
+      entity_id:
+        name: Entitäts-ID
+        description: "Optionaler Teil der Entitäts-ID ohne Domäne. Standardmäßig aus dem Namen erzeugt, etwa gaste_wc für Gäste WC."
+      suggested_area:
+        name: Vorgeschlagener Bereich
+        description: "Optionaler Bereich in Home Assistant für dieses Gerät"
+      climate_sensor_serial_no:
+        name: Klimasensor
+        description: "Optionale Seriennummer des zugeordneten Klimasensors für Temperatur und Luftfeuchtigkeit"
+  floor_thermostats:
+    name: Fußbodenthermostate
+    description: "Füge für jede ViCare-Fußbodenheizungszone, die du in Home Assistant sehen möchtest, einen Eintrag hinzu."
+    fields:
+      serial_no:
+        name: Seriennummer der Steuereinheit
+        description: "Seriennummer oder EUI-64 der Fußbodenheizungssteuerung. Verwende für alle Zonen derselben Steuereinheit dieselbe Nummer."
+      endpoint:
+        name: Zigbee-Endpunkt
+        description: "Endpunktnummer der Zone an der Steuereinheit (1–240)"
+      name:
+        name: Name
+        description: "Name der Zone in Home Assistant (z. B. Fußbodenheizung Bad)"
+      entity_id:
+        name: Entitäts-ID
+        description: "Optionaler Teil der Entitäts-ID ohne Domäne. Standardmäßig aus dem Namen erzeugt. Verwende für jede Zone eine eindeutige ID."
+      suggested_area:
+        name: Vorgeschlagener Bereich
+        description: "Optionaler Bereich in Home Assistant für diese Zone"
+      climate_sensor_serial_no:
+        name: Seriennummer des Klimasensors
+        description: "Optionale Seriennummer eines ViCare-Klimasensors zur Anzeige von Raumtemperatur und Luftfeuchtigkeit"
+  climate_sensors:
+    name: Klimasensoren
+    description: "ViCare-Klimasensoren für Temperatur und Luftfeuchtigkeit einrichten"
+    fields:
+      serial_no:
+        name: Seriennummer
+        description: "Seriennummer oder EUI-64 des Geräts (z. B. FF-EE-DD-CC-BB-AA-00-00). Du findest die Nummer in den Geräteeinstellungen der ViCare-App."
+      name:
+        name: Name
+        description: "Name des Klimasensors in Home Assistant"
+      entity_id:
+        name: Entitäts-ID
+        description: "Optionaler Teil der Entitäts-ID ohne Domäne. Standardmäßig aus dem Namen erzeugt, etwa gaste_wc für Gäste WC."
+      suggested_area:
+        name: Vorgeschlagener Bereich
+        description: "Optionaler Bereich in Home Assistant für dieses Gerät"
+  advanced:
+    name: Erweiterte Einstellungen
+    description: "Optionale Einstellungen für Paketverarbeitung, Steuerung und Protokollierung"
+    fields:
+      language:
+        name: Sprache
+        description: "Legt nur die Sprache der Standardnamen von Geräten und Entitäten fest. Wähle en für Englisch (Standard) oder de für Deutsch. Diese Einstellung entfällt, sobald ViLocal automatisch die Sprache der Home-Assistant-Instanz übernehmen kann."
+      publish_unknown_devices:
+        name: Unbekannte Geräte veröffentlichen
+        description: "Erkennt Heizkörperthermostate und Klimasensoren automatisch, auch wenn sie hier fehlen. Füge Fußbodenheizungszonen unter Fußbodenthermostate hinzu."
+      filter_pan_id:
+        name: PAN-ID-Filter
+        description: "Optionaler Filter für ein bestimmtes Zigbee-Netzwerk. ViLocal verarbeitet dann nur Pakete aus diesem Netzwerk. Gib die PAN-ID mit vier Hexadezimalzeichen ein (z. B. 1A2B). Ein leeres Feld deaktiviert den Filter."
+      retain_state:
+        name: Gerätezustände speichern
+        description: "Speichert den letzten bekannten Zustand aller veröffentlichten Geräte im MQTT-Broker"
+      buffer_format:
+        name: Pufferformat
+        description: "Kodierung für Binärdaten in MQTT-Nachrichten"
+      unwrap_layers:
+        name: Protokollschichten entfernen
+        description: "Protokollschichten, die ViLocal vor der Zigbee-Dekodierung entfernt (eth, ip4, ip6, tcp, udp, zep). Bei direkter IEEE-802.15.4-Eingabe leer lassen."
+      add_cli_args:
+        name: Zusätzliche Argumente für den Mitschnitt
+        description: "Optionale Kommandozeilenargumente für das gewählte Mitschnittwerkzeug (z. B. -n -vvv -s 0 für tcpdump oder -v -P 10 für ember-sniff)"
+      control_add_cli_args:
+        name: Zusätzliche Argumente für die Steuerung
+        description: "Optionale Kommandozeilenargumente für ember-router bei aktivierter Steuerung (z. B. -v)"
+      router_keepalive_minutes:
+        name: Keepalive bei gemeinsam genutztem Adapter (Minuten)
+        description: "Der gemeinsam genutzte Adapter meldet sich vor dem Mitschnitt bei Vitoconnect und danach, wenn für die eingestellte Dauer kein Steuerbefehl eingeht. Standardmäßig sind es 30 Minuten. Mit 0 deaktivierst du das Keepalive. Weitere Meldungen unterbrechen den Mitschnitt kurz."
+      log_level:
+        name: Protokollstufe
+        description: "Detailgrad der ViLocal-Protokollierung"

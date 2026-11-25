@@ -4,7 +4,7 @@
 
 ViLocal brings Viessmann ViCare thermostats and climate sensors into Home Assistant through MQTT **without requiring any cloud connectivity or Viessmann API subscriptions**.
 
-It works by passively sniffing ZigBee communication between your ViCare devices and coordinator / Vitoconnect, capturing encrypted traffic and publishing device attributes to your local MQTT broker. With optional thermostat control, you can change radiator setpoints and floor heating output from Home Assistant through Ember Router. [ember-router](https://github.com/kristian/ember-router)
+It works by passively sniffing ZigBee communication between your ViCare devices and coordinator / Vitoconnect, capturing encrypted traffic and publishing device attributes to your local MQTT broker. With optional thermostat control, you can change radiator setpoints and floor heating output from Home Assistant through Ember Router [ember-router](https://github.com/kristian/ember-router).
 
 ### Key Features
 
@@ -71,7 +71,7 @@ Network key:
 
 Data source mode:
 
-- `embersniff`: best for network sniffers that expose serial/TCP streams
+- `embersniff` uses ember-sniff, best for network sniffers that expose serial/TCP streams
 - `tcpdump`: best when sniffing from a local interface
 - `whsniff`: direct channel-based sniffer output
 
@@ -112,9 +112,9 @@ For each device, enter the following.
 - Suggested area (optional)
 - For radiator and floor thermostats, you can link a climate sensor by serial number to show its temperature and humidity readings.
 
-Under **Floor Thermostats**, add one entry for each zone you want to see in Home Assistant. Enter the controller's serial number and the zone's Zigbee endpoint (1–240). Zones on the same controller share its serial number. Give each zone a distinct name or Entity ID.
+Under **Floor Thermostats**, add one entry for each zone you want to see in Home Assistant. Enter the controller's eight-byte serial number and the zone's Zigbee endpoint (1–240). Zones on the same controller share its serial number. Give each zone a distinct name or Entity ID. ViLocal adds the floor controller automatically and shows its **Supply Temperature**.
 
-To find a zone's endpoint, listen to `ViLocal/+/0x0008/0x4004` in the Home Assistant MQTT integration. Use your configured topic prefix in place of `ViLocal` if needed. The number after the colon in `<controller-eui>:<endpoint>` identifies the zone.
+To find a zone's endpoint, listen to `ViLocal/+/0x0008/0x4004` in the Home Assistant MQTT integration. Use your configured topic prefix in place of `ViLocal` if needed. The last two hex digits of the zone ID give the endpoint. For example, `AB-CD-EF-12-34-56-78-91-0A` is endpoint 10.
 
 #### C. Advanced Settings (Optional)
 
@@ -122,6 +122,7 @@ Most users can keep defaults.
 
 Only change advanced options when you have a clear reason:
 
+- Language applies only to default device and entity names. Choose `en` for English (default) or `de` for German. ViLocal uses your configured names and suggested areas as entered. This setting will be removed when ViLocal can use the Home Assistant instance language automatically.
 - Log level: more detail only when troubleshooting
 - Buffer format: keep default unless integration requires another format
 - Publish unknown devices: enable if you want data from unlisted devices
@@ -144,7 +145,9 @@ Then enable control in the app configuration (**Thermostat Control**). Whether t
 
 In shared mode, Home Assistant shows a requested radiator setpoint right away because capture may miss the thermostat's report while paused. A later captured report can update the display.
 
-Each floor heating zone shows its **Requested Output Level** and whether its output is active. Turn on **Enable Control** to request a level from 0 to 100%. With a shared adapter, the active state may take until the controller's next report to update. Vitoconnect can replace the requested level, and ViCare still manages temperature targets and schedules. [ViLocal floor thermostat documentation](https://github.com/kristian/ViLocal/blob/v3.5.0/README.md#floor-thermostats)
+With **Enable Control** on, use a Home Assistant automation to turn a radiator's **External Window Open** switch on and off when a window contact sensor changes state. The **Window Open** sensor shows the state reported by the thermostat. See the [ViLocal documentation](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#external-window-open) for an example automation.
+
+Each floor heating zone shows its **Requested Output Level** and whether its output is active. Turn on **Enable Control** to request a level from 0 to 100%. With a shared adapter, the active state may take until the controller's next report to update. Vitoconnect can replace the requested level, and ViCare still manages temperature targets and schedules. See the [ViLocal floor thermostat documentation](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#floor-thermostats) for more details.
 
 Both modes use a local socket for binary requests and replies between ViLocal and ember-router.
 
@@ -152,7 +155,7 @@ Both modes use a local socket for binary requests and replies between ViLocal an
 
 Turn on **Enable Control** and connect the Home Assistant MQTT integration to the same broker as ViLocal. Use **Developer Tools → Actions → MQTT: Publish** to send a request manually, or add an `mqtt.publish` action to an automation or script. ViLocal needs to have observed traffic from the target device to know its current ZigBee network address.
 
-Use a topic in the form `<mqtt.topic>/<eui>/<cluster>/<attribute>/<read or write>`. Replace `ViLocal` in the examples with your configured MQTT topic and use your device's hyphen-separated EUI. Always leave **Retain** off for requests.
+Use a topic in the form `<mqtt.topic>/<device-id>/<cluster>/<attribute>/<read or write>`. Use your device's hyphen-separated EUI or the floor zone ID described below. Replace `ViLocal` in the examples with your configured MQTT topic. Always leave **Retain** off for requests.
 
 For example, this automation action reads the local temperature attribute.
 
@@ -174,7 +177,9 @@ This action writes a heating setpoint of 22 °C. Send a JSON payload in the attr
     retain: false
 ```
 
-ViLocal publishes successful reads and acknowledged write values to the attribute's MQTT state topic, `<mqtt.topic>/<eui>/<cluster>/<attribute>`. Use an MQTT trigger on that topic if an automation needs to react to updates. [ViLocal MQTT attribute command documentation](https://github.com/kristian/ViLocal/blob/v3.5.0/README.md#read-and-write-zigbee-attributes-over-mqtt)
+ViLocal publishes successful reads and acknowledged write values to the attribute's MQTT state topic, `<mqtt.topic>/<device-id>/<cluster>/<attribute>`. Use an MQTT trigger on that topic if an automation needs to react to updates. For manufacturer-specific attributes, include the manufacturer code in the request payload. Details can be found in [ViLocal's MQTT attribute command documentation](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#read-and-write-zigbee-attributes-over-mqtt).
+
+For floor zones, append the two-digit hexadecimal endpoint to the controller's EUI with a hyphen. For example, endpoint 10 uses `AB-CD-EF-12-34-56-78-91-0A`. Again refer to the [ViLocal floor thermostat MQTT topics](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#floor-thermostat-mqtt-topics) for more details.
 
 ## Device Diagnostics
 
@@ -183,8 +188,13 @@ ViLocal publishes successful reads and acknowledged write values to the attribut
 - **Valve Position** shows the estimated valve opening.
 - **Target Valve Position** shows the opening the thermostat is aiming for.
 - **Lifetime Motor Steps** shows the thermostat's lifetime motor movement counter.
+- **Identification Mode** briefly turns on when you tap the thermostat's connection button.
+- **Installation Mode** shows when the thermostat is ready to install.
+- **Child Lock** shows the thermostat's lock state. With **Enable Control** on, you can also change it.
 
-ViLocal learns the valve's range by observing movement during everyday heating or a ViCare calibration sweep. Home Assistant shows **Unavailable** for valve position while ViLocal learns the range or the thermostat calibrates. ViLocal saves the learned range through the MQTT broker so it can restore it after a restart. [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.5.0/README.md#thermostat-valve-positions)
+You can enable **Firmware Version**, **Lifetime Motor Steps**, **Identification Mode**, **Installation Mode**, and **Child Lock** in Home Assistant. These entities are disabled by default when first discovered.
+
+ViLocal learns the valve's range by observing movement during everyday heating or a ViCare calibration sweep. Home Assistant shows **Unavailable** for valve position while ViLocal learns the range, while the thermostat calibrates, or when ViLocal is offline. ViLocal saves the learned range through the MQTT broker so it can restore it after a restart. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#thermostat-valve-positions) for more details.
 
 ## FAQ
 
@@ -196,6 +206,9 @@ A: No. ViLocal only listens passively by default. Only if you enable control, co
 
 **Q: Can I control my thermostats?**<br>
 A: Yes, optionally. Enable and set up thermostat control, see [Thermostat Control](#d-thermostat-control-optional).
+
+**Q: Why do my thermostat valves show as unavailable?**<br>
+A: Valve position is shown as **Unavailable** while ViLocal is learning the valve's range, during thermostat calibration, or when ViLocal is offline. You can try moving the valve manually to help ViLocal learn its range. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#thermostat-valve-positions) for more details.
 
 **Q: What hardware do I need?**<br>
 A: A ZigBee sniffing device like SMLIGHT SLZB-06M or Ubisys Wireshark stick. See [tested devices](https://github.com/kristian/zbtk/blob/main/docs/tested-capture-devices.md).

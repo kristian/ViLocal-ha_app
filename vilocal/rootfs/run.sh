@@ -23,6 +23,7 @@ CONTROL_ENABLED=$(bashio::config 'control.enabled')
 CONTROL_INTERFACE=$(bashio::config 'control.dedicated_interface')
 CONTROL_CLI_ARGS=$(bashio::config 'advanced.control_add_cli_args')
 ROUTER_KEEPALIVE_MINUTES=$(bashio::config 'advanced.router_keepalive_minutes' 30)
+LANGUAGE=$(bashio::config 'advanced.language' en)
 
 # Validate required configuration
 if [ -z "$NETWORK_KEY" ]; then
@@ -266,16 +267,16 @@ log_effective_command() {
 
 if [ "$CAPTURE_SOURCE" = "embersniff" ]; then
     if [ -z "$CAPTURE_INTERFACE" ]; then
-        bashio::log.error "capture.interface is required when using embersniff!"
+        bashio::log.error "capture.interface is required when using ember-sniff!"
         exit 1
     fi
 
     if [ -z "$CAPTURE_CHANNEL" ]; then
-        bashio::log.error "capture.channel is required when using embersniff!"
+        bashio::log.error "capture.channel is required when using ember-sniff!"
         exit 1
     fi
 
-    bashio::log.info "Using embersniff capture interface/path: $CAPTURE_INTERFACE on channel: $CAPTURE_CHANNEL"
+    bashio::log.info "Using ember-sniff capture interface/path: $CAPTURE_INTERFACE on channel: $CAPTURE_CHANNEL"
     CAPTURE_ARGS=(ember-sniff -p "$CAPTURE_INTERFACE" -c "$CAPTURE_CHANNEL")
 
 elif [ "$CAPTURE_SOURCE" = "tcpdump" ]; then
@@ -303,4 +304,5 @@ fi
 START_COMMAND=(/app/start.sh "${CONTROL_PREFIX[@]}" "${CAPTURE_ARGS[@]}" "${CAPTURE_EXTRA_ARGS[@]}")
 log_effective_command "${START_COMMAND[@]}"
 
+export LANGUAGE="$LANGUAGE"
 exec "${START_COMMAND[@]}" 2>&1
