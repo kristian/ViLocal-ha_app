@@ -36,14 +36,14 @@ configuration:
         description: "Home Assistant MQTT Discovery prefix (default: homeassistant)"
   control:
     name: Thermostat Control
-    description: "Optional: control thermostats (change setpoints) from Home Assistant. Control is only supported through Ember Router (ember-router), which needs an adapter with EmberZNet (NCP) firmware that was already paired to your ViCare network as a repeater (see the Documentation tab). In case you are using an EmberZNet adapter for capturing, you can either share it for control, or use a dedicated adapter for control commands. See the ViLocal documentation for details."
+    description: "Optionally change radiator setpoints and floor heating output requests from Home Assistant. Control requires an adapter with EmberZNet (NCP) firmware paired to your ViCare network as a repeater. You can share an EmberZNet capture adapter or use a dedicated control adapter. See the Documentation tab for setup."
     fields:
       enabled:
         name: Enable Control
-        description: "Forward thermostat control commands to the ViCare network using ember-router. Leave disabled for capturing only. Note: This requires additional setup of your adapter as described in the documentation."
+        description: "Forward radiator setpoints and floor heating output requests to the ViCare network. Leave disabled to monitor devices only."
       dedicated_interface:
         name: Dedicated Control Interface / Path
-        description: "Optional: serial/TCP path of a second ember-router adapter used only for control (e.g., tcp://192.168.1.43:6638). If set, capture is never interrupted and can use any Capture Source. If empty, control runs in shared mode: the Capture Interface / Path adapter (Capture Source embersniff, paired with ember-router) is used for both capture and control, capture pauses briefly while a command is sent and Home Assistant shows requested setpoints immediately (optimistic mode)."
+        description: "Optional serial/TCP path of a second ember-router adapter for control (e.g., tcp://192.168.1.43:6638). Leave empty to share the paired capture adapter with Capture Source embersniff. In shared mode, capture pauses briefly while a command is sent and Home Assistant shows requested radiator setpoints immediately."
   thermostats:
     name: Thermostats
     description: "Configure known ViCare thermostats with their serial numbers and optional associated climate sensors"
@@ -63,6 +63,28 @@ configuration:
       climate_sensor_serial_no:
         name: Climate Sensor
         description: "Optional: Serial number of associated climate sensor for better temperature/humidity readings"
+  floor_thermostats:
+    name: Floor Thermostats
+    description: "Add one entry for each ViCare floor heating zone you want to see in Home Assistant."
+    fields:
+      serial_no:
+        name: Controller Serial Number
+        description: "Serial number or EUI-64 of the floor heating controller. Use the same serial number for zones on the same controller."
+      endpoint:
+        name: Zigbee Endpoint
+        description: "Endpoint number of the zone on the controller (1–240)."
+      name:
+        name: Name
+        description: "Name of the zone in Home Assistant, such as Bathroom Floor Heating."
+      entity_id:
+        name: Entity ID
+        description: "Optional Home Assistant entity ID slug without the domain. Defaults to a slug generated from the name. Use a unique slug for each zone."
+      suggested_area:
+        name: Suggested Area
+        description: "Optional Home Assistant area for the zone."
+      climate_sensor_serial_no:
+        name: Climate Sensor Serial Number
+        description: "Optional serial number of a ViCare climate sensor to display the room temperature and humidity."
   climate_sensors:
     name: Climate Sensors
     description: "Configure known ViCare climate (temperature/humidity) sensors"
@@ -85,7 +107,7 @@ configuration:
     fields:
       publish_unknown_devices:
         name: Publish Unknown Devices
-        description: "Automatically publish discovered devices not listed in Thermostats or Climate Sensors"
+        description: "Automatically discover unlisted radiator thermostats and climate sensors. Add floor heating zones under Floor Thermostats."
       filter_pan_id:
         name: Filter PAN-ID
         description: "Optional filter for a specific ZigBee network / PAN (Personal Area Network) ID. Only packets from this network will be processed. Format: 4 hex characters (e.g., 1A2B). Leave empty for no filtering."
@@ -106,7 +128,7 @@ configuration:
         description: "Optional extra flags passed to ember-router when control is enabled (example: -v)."
       router_keepalive_minutes:
         name: Shared Router Keepalive (minutes)
-        description: "Resume the ZigBee router periodically in shared adapter mode. Defaults to 30 minutes. Set to 0 to disable. Each keepalive briefly pauses capture."
+        description: "Send a check-in to Vitoconnect before capture starts and after this many minutes without a control request in shared adapter mode. Defaults to 30 minutes. Set to 0 to disable. Periodic check-ins briefly pause capture."
       log_level:
         name: Log Level
         description: "ViLocal log verbosity"

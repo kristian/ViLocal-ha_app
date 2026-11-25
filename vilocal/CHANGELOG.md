@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-11-25
+
+> [!NOTE]
+> You can now add ViCare floor heating zones in the app's **Floor Thermostats** settings. Each zone shows its requested output level and whether the output is active. Link a ViCare climate sensor to see room temperature and humidity alongside them. With **Enable Control** on, you can also change the requested output from Home Assistant. ViCare still manages room temperature targets and schedules.
+>
+> ViCare radiator thermostats now show lifetime motor steps and, once ViLocal has seen enough valve movement, current and target valve openings. Home Assistant also shows firmware versions for devices that report them. If you use a shared adapter with keepalive enabled, ViLocal now checks in with your ViCare gateway at startup as well as after periods of inactivity.
+
+- Bump ViLocal to 3.5.0, which includes ZigBee Toolkit 3.1.1. [Upstream changelog](https://github.com/kristian/ViLocal/blob/v3.5.0/CHANGELOG.md)
+- Add floor thermostat configuration with one Home Assistant device per controller endpoint.
+- Add radiator valve position estimates with learned bounds retained over MQTT, lifetime motor steps, and firmware version reporting for discovered devices.
+- Send a power source report from the paired router to Vitoconnect when shared adapter keepalive runs, including at startup before capture begins.
+
 ## [2.1.0] - 2026-11-22
 
 > [!NOTE]

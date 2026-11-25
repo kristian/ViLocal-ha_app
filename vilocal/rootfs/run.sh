@@ -167,6 +167,31 @@ if [ -n "$THERMOSTATS" ] && [ "$THERMOSTATS" != "[]" ]; then
     done
 fi
 
+# Add one floor thermostat per configured controller endpoint.
+FLOOR_THERMOSTATS=$(jq -c '.floor_thermostats[]?' '/data/options.json')
+if [ -n "$FLOOR_THERMOSTATS" ]; then
+    bashio::log.info "Adding floor thermostats configuration..."
+    floor_index=0
+    while IFS= read -r floor_thermostat; do
+        ENTITY_ID=$(jq -r '.entity_id // empty' <<< "$floor_thermostat")
+        if [ -z "$ENTITY_ID" ]; then
+            NAME=$(jq -r '.name' <<< "$floor_thermostat")
+            ENTITY_ID=$(normalize_entity_id "$NAME")
+        fi
+
+        jq -r --arg id "${ENTITY_ID:-floor_thermostat_${floor_index}}" '
+            "",
+            "[floor_thermostats.\($id | tojson)]",
+            "serial_no = \(.serial_no | tojson)",
+            "endpoint = \(.endpoint)",
+            "name = \(.name | tojson)",
+            (.suggested_area | select(. != null and . != "") | "suggested_area = \(tojson)"),
+            (.climate_sensor_serial_no | select(. != null and . != "") | "climate_sensor_serial_no = \(tojson)")
+        ' <<< "$floor_thermostat" >> "$VILOCAL_CONFIG_FILE"
+        floor_index=$((floor_index + 1))
+    done <<< "$FLOOR_THERMOSTATS"
+fi
+
 # Add climate sensors if configured
 CLIMATE_SENSORS=$(bashio::config 'climate_sensors')
 if [ -n "$CLIMATE_SENSORS" ] && [ "$CLIMATE_SENSORS" != "[]" ]; then

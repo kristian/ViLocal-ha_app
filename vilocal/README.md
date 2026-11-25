@@ -1,6 +1,6 @@
 # ViLocal Home Assistant App
 
-Local integration of Viessmann ViCare thermostats and climate sensors into Home Assistant.
+Local integration of Viessmann ViCare thermostats (radiator and floor) and climate sensors into Home Assistant.
 
 > [!TIP]
 > Refer to the **[Documentation](./documentation)** for all set-up instructions.

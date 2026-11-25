@@ -1,5 +1,5 @@
 name: "ViLocal"
-version: "2.1.0"
+version: "2.2.0"
 slug: vilocal
 description: "Local integration for Viessmann ViCare devices"
 url: "https://github.com/kristian/ViLocal-ha_app"
@@ -35,6 +35,7 @@ options:
     enabled: false
     dedicated_interface: ""
   thermostats: []
+  floor_thermostats: []
   climate_sensors: []
   advanced:
     publish_unknown_devices: false
@@ -63,6 +64,13 @@ schema:
     dedicated_interface: "str?"
   thermostats:
     - serial_no: "str"
+      name: "str"
+      entity_id: "str?"
+      suggested_area: "str?"
+      climate_sensor_serial_no: "str?"
+  floor_thermostats:
+    - serial_no: "str"
+      endpoint: "int(1,240)"
       name: "str"
       entity_id: "str?"
       suggested_area: "str?"

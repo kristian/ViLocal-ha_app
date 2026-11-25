@@ -4,7 +4,7 @@
 
 ViLocal brings Viessmann ViCare thermostats and climate sensors into Home Assistant through MQTT **without requiring any cloud connectivity or Viessmann API subscriptions**.
 
-It works by passively sniffing ZigBee communication between your ViCare devices and coordinator / VitoConnect, capturing encrypted traffic and publishing device attributes to your local MQTT broker. Optionally, thermostat setpoints can be changed from Home Assistant by forwarding commands to the ViCare network through Ember Router ([ember-router](https://github.com/kristian/ember-router)).
+It works by passively sniffing ZigBee communication between your ViCare devices and coordinator / Vitoconnect, capturing encrypted traffic and publishing device attributes to your local MQTT broker. With optional thermostat control, you can change radiator setpoints and floor heating output from Home Assistant through Ember Router. [ember-router](https://github.com/kristian/ember-router)
 
 ### Key Features
 
@@ -19,11 +19,12 @@ It works by passively sniffing ZigBee communication between your ViCare devices 
 ### Supported ViCare Devices
 
 - **Viessmann ViCare Thermostat Radiator Valves (TRVs)**
+- **Viessmann ViCare Floor Thermostats**
 - **Viessmann ViCare Climate Sensors** (temperature/humidity)
 
 **Important:**
 
-By default ViLocal only monitors your devices (passive sniffing). Changing thermostat setpoints requires the optional thermostat control, see [Thermostat Control](#d-thermostat-control-optional) and additional set-up of [Ember Router](https://github.com/kristian/ember-router) and your ZigBee hardware / EmberZNet adapter.
+By default ViLocal monitors your devices through passive sniffing. Changing radiator thermostat setpoints or floor heating output requires optional control and a paired EmberZNet adapter. See [Thermostat Control](#d-thermostat-control-optional).
 
 ## Quick Start
 
@@ -101,15 +102,19 @@ MQTT broker settings:
 
 #### B. Device List Settings (Optional, Recommended)
 
-You can run ViLocal without manually adding devices (by setting the "Add Unknown Devices" option in the advanced settings). However, in order for friendly names to appear in Home Assistant, it is recommended to add your thermostats and climate sensors in the configuration.
+You can enable **Publish Unknown Devices** in Advanced Settings to discover radiator thermostats and climate sensors automatically. Add them in the app configuration to give them friendly names in Home Assistant.
 
-For each thermostat / climate sensor, provide:
+For each device, enter the following.
 
 - Serial number as found in your ViCare app or the printed label on the device
 - Friendly name (e.g. "Living Room Thermostat")
 - Optional Entity ID override (slug only, without domain). If left empty, it is generated from Name using Home Assistant-like slug rules (lowercase, spaces/camel-case converted to `_`, diacritics normalized, e.g. `Gäste WC` -> `gaste_wc`).
 - Suggested area (optional)
-- For thermostats specifically, you can link a climate sensor serial number (optional). This will result in the HA thermostat using the climate sensor values instead of the built-in values of the thermostat.
+- For radiator and floor thermostats, you can link a climate sensor by serial number to show its temperature and humidity readings.
+
+Under **Floor Thermostats**, add one entry for each zone you want to see in Home Assistant. Enter the controller's serial number and the zone's Zigbee endpoint (1–240). Zones on the same controller share its serial number. Give each zone a distinct name or Entity ID.
+
+To find a zone's endpoint, listen to `ViLocal/+/0x0008/0x4004` in the Home Assistant MQTT integration. Use your configured topic prefix in place of `ViLocal` if needed. The number after the colon in `<controller-eui>:<endpoint>` identifies the zone.
 
 #### C. Advanced Settings (Optional)
 
@@ -122,11 +127,11 @@ Only change advanced options when you have a clear reason:
 - Publish unknown devices: enable if you want data from unlisted devices
 - Unwrap layers: packet parsing tuning for special setups
 - Additional Control CLI Arguments passes flags such as `-v` to ember-router when control is enabled. Use `-gg` for reconnects with a dedicated adapter. Shared mode opens a new router session for each request.
-- Shared Router Keepalive (`advanced.router_keepalive_minutes`) defaults to 30 minutes. After that interval without a request, the app briefly pauses capture and resumes the router to help ViCare keep it marked online. Set it to `0` to disable keepalive. This setting applies only to a shared adapter.
+- Shared Router Keepalive (`advanced.router_keepalive_minutes`) defaults to 30 minutes. In shared mode, the router checks in with Vitoconnect before capture starts and after that interval without a control request. Periodic check-ins briefly pause capture. Set it to `0` to disable keepalive.
 
 #### D. Thermostat Control (Optional)
 
-Control lets you change the heating setpoint of a thermostat from Home Assistant. Control is only supported through ember-router, which operates an adapter with EmberZNet (NCP) firmware as a ZigBee router ("ViCare Repeater") joined to your ViCare network.
+Control lets you change a radiator thermostat's heating setpoint or a floor thermostat's requested output level from Home Assistant. Control uses ember-router, which operates an adapter with EmberZNet (NCP) firmware as a ZigBee router ("ViCare Repeater") joined to your ViCare network.
 
 **Set-up (required once, outside of this app):**
 
@@ -137,7 +142,9 @@ Then enable control in the app configuration (**Thermostat Control**). Whether t
 - **Shared adapter** (Dedicated Control Interface / Path empty): The capture adapter is also used for control. Requires Capture Source `embersniff`, and the adapter must be the one paired in the previous step. While a command is sent, capture pauses briefly and may miss the command or the thermostat's response.
 - **Dedicated router** (Dedicated Control Interface / Path set, e.g. `tcp://192.168.1.43:6638`): A second adapter is used only for control. Capture can use any Capture Source and keeps running while commands are sent.
 
-In shared mode, optimistic climate control is enabled automatically: Home Assistant shows a requested setpoint right away instead of waiting for the thermostat's report, as capture may miss it while paused. A later captured report can still correct the display.
+In shared mode, Home Assistant shows a requested radiator setpoint right away because capture may miss the thermostat's report while paused. A later captured report can update the display.
+
+Each floor heating zone shows its **Requested Output Level** and whether its output is active. Turn on **Enable Control** to request a level from 0 to 100%. With a shared adapter, the active state may take until the controller's next report to update. Vitoconnect can replace the requested level, and ViCare still manages temperature targets and schedules. [ViLocal floor thermostat documentation](https://github.com/kristian/ViLocal/blob/v3.5.0/README.md#floor-thermostats)
 
 Both modes use a local socket for binary requests and replies between ViLocal and ember-router.
 
@@ -167,7 +174,17 @@ This action writes a heating setpoint of 22 °C. Send a JSON payload in the attr
     retain: false
 ```
 
-ViLocal publishes successful reads and acknowledged write values to the attribute's MQTT state topic, `<mqtt.topic>/<eui>/<cluster>/<attribute>`. Use an MQTT trigger on that topic if an automation needs to react to updates. [ViLocal MQTT attribute command documentation](https://github.com/kristian/ViLocal/blob/v3.3.1/README.md#read-and-write-zigbee-attributes-over-mqtt)
+ViLocal publishes successful reads and acknowledged write values to the attribute's MQTT state topic, `<mqtt.topic>/<eui>/<cluster>/<attribute>`. Use an MQTT trigger on that topic if an automation needs to react to updates. [ViLocal MQTT attribute command documentation](https://github.com/kristian/ViLocal/blob/v3.5.0/README.md#read-and-write-zigbee-attributes-over-mqtt)
+
+## Device Diagnostics
+
+**Firmware Version** shows the software build reported by a device. Radiator thermostats also show the following diagnostics.
+
+- **Valve Position** shows the estimated valve opening.
+- **Target Valve Position** shows the opening the thermostat is aiming for.
+- **Lifetime Motor Steps** shows the thermostat's lifetime motor movement counter.
+
+ViLocal learns the valve's range by observing movement during everyday heating or a ViCare calibration sweep. Home Assistant shows **Unavailable** for valve position while ViLocal learns the range or the thermostat calibrates. ViLocal saves the learned range through the MQTT broker so it can restore it after a restart. [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.5.0/README.md#thermostat-valve-positions)
 
 ## FAQ
 
