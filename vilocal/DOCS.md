@@ -194,7 +194,7 @@ For floor zones, append the two-digit hexadecimal endpoint to the controller's E
 
 You can enable **Firmware Version**, **Target Valve Position**, **Lifetime Motor Steps**, **Identification Mode**, **Installation Mode**, and **Child Lock** in Home Assistant. These entities are disabled by default when first discovered.
 
-ViLocal learns the valve's range by observing movement during everyday heating or a ViCare calibration sweep. Home Assistant shows **Unavailable** for valve position while ViLocal learns the range, while the thermostat calibrates, or when ViLocal is offline. ViLocal saves the learned range through the MQTT broker so it can restore it after a restart. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.2/README.md#thermostat-valve-positions) for more details.
+ViLocal learns the valve's range during everyday heating and ViCare calibration sweeps. It adjusts the range as it sees new positions and reuses the previous range if calibration is inconclusive. ViLocal saves the range through the MQTT broker so it can restore it after a restart. Home Assistant shows **Unavailable** while ViLocal learns the range, while the thermostat calibrates, or when ViLocal is offline. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.3/README.md#thermostat-valve-positions) for more details.
 
 ## FAQ
 
@@ -208,7 +208,7 @@ A: No. ViLocal only listens passively by default. Only if you enable control, co
 A: Yes, optionally. Enable and set up thermostat control, see [Thermostat Control](#d-thermostat-control-optional).
 
 **Q: Why do my thermostat valves show as unavailable?**<br>
-A: Valve position is shown as **Unavailable** while ViLocal is learning the valve's range, during thermostat calibration, or when ViLocal is offline. You can try moving the valve manually to help ViLocal learn its range. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.2/README.md#thermostat-valve-positions) for more details.
+A: Valve position is shown as **Unavailable** while ViLocal is learning the valve's range, during thermostat calibration, or when ViLocal is offline. You can try moving the valve manually to help ViLocal learn its range. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.3/README.md#thermostat-valve-positions) for more details.
 
 **Q: What hardware do I need?**<br>
 A: A ZigBee sniffing device like SMLIGHT SLZB-06M or Ubisys Wireshark stick. See [tested devices](https://github.com/kristian/zbtk/blob/main/docs/tested-capture-devices.md).
