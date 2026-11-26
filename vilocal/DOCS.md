@@ -127,7 +127,7 @@ Only change advanced options when you have a clear reason:
 - Buffer format: keep default unless integration requires another format
 - Publish unknown devices: enable if you want data from unlisted devices
 - Unwrap layers: packet parsing tuning for special setups
-- Additional Control CLI Arguments passes flags such as `-v` to ember-router when control is enabled. Use `-gg` for reconnects with a dedicated adapter. Shared mode opens a new router session for each request.
+- Additional Control CLI Arguments passes flags such as `-v` to ember-router when control is enabled. Use `-gg` for reconnects with a dedicated adapter. In shared mode, the router waits five seconds after reconnecting for each request. Use `--settle-delay` to change the delay in milliseconds.
 - Shared Router Keepalive (`advanced.router_keepalive_minutes`) defaults to 30 minutes. In shared mode, the router checks in with Vitoconnect before capture starts and after that interval without a control request. Periodic check-ins briefly pause capture. Set it to `0` to disable keepalive.
 
 #### D. Thermostat Control (Optional)
@@ -192,9 +192,9 @@ For floor zones, append the two-digit hexadecimal endpoint to the controller's E
 - **Installation Mode** shows when the thermostat is ready to install.
 - **Child Lock** shows the thermostat's lock state. With **Enable Control** on, you can also change it.
 
-You can enable **Firmware Version**, **Lifetime Motor Steps**, **Identification Mode**, **Installation Mode**, and **Child Lock** in Home Assistant. These entities are disabled by default when first discovered.
+You can enable **Firmware Version**, **Target Valve Position**, **Lifetime Motor Steps**, **Identification Mode**, **Installation Mode**, and **Child Lock** in Home Assistant. These entities are disabled by default when first discovered.
 
-ViLocal learns the valve's range by observing movement during everyday heating or a ViCare calibration sweep. Home Assistant shows **Unavailable** for valve position while ViLocal learns the range, while the thermostat calibrates, or when ViLocal is offline. ViLocal saves the learned range through the MQTT broker so it can restore it after a restart. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#thermostat-valve-positions) for more details.
+ViLocal learns the valve's range by observing movement during everyday heating or a ViCare calibration sweep. Home Assistant shows **Unavailable** for valve position while ViLocal learns the range, while the thermostat calibrates, or when ViLocal is offline. ViLocal saves the learned range through the MQTT broker so it can restore it after a restart. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.2/README.md#thermostat-valve-positions) for more details.
 
 ## FAQ
 
@@ -208,7 +208,7 @@ A: No. ViLocal only listens passively by default. Only if you enable control, co
 A: Yes, optionally. Enable and set up thermostat control, see [Thermostat Control](#d-thermostat-control-optional).
 
 **Q: Why do my thermostat valves show as unavailable?**<br>
-A: Valve position is shown as **Unavailable** while ViLocal is learning the valve's range, during thermostat calibration, or when ViLocal is offline. You can try moving the valve manually to help ViLocal learn its range. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.0/README.md#thermostat-valve-positions) for more details.
+A: Valve position is shown as **Unavailable** while ViLocal is learning the valve's range, during thermostat calibration, or when ViLocal is offline. You can try moving the valve manually to help ViLocal learn its range. See the [ViLocal valve position documentation](https://github.com/kristian/ViLocal/blob/v3.7.2/README.md#thermostat-valve-positions) for more details.
 
 **Q: What hardware do I need?**<br>
 A: A ZigBee sniffing device like SMLIGHT SLZB-06M or Ubisys Wireshark stick. See [tested devices](https://github.com/kristian/zbtk/blob/main/docs/tested-capture-devices.md).
