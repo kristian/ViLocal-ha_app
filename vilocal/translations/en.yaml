@@ -128,10 +128,10 @@ configuration:
         description: "Optional extra flags appended to the selected capture tool (examples: tcpdump: -n -vvv -s 0, ember-sniff: -v -P 10)."
       control_add_cli_args:
         name: Additional Control CLI Arguments
-        description: "Optional extra flags passed to ember-router when control is enabled (example: -v)."
+        description: "Optional flags for ember-router, such as -v. Use -m to supply a different pairing manufacturer code. The default is UBISYS_TECHNOLOGIES_GMBH."
       router_keepalive_minutes:
         name: Shared Router Keepalive (minutes)
-        description: "Send a check-in to Vitoconnect before capture starts and after this many minutes without a control request in shared adapter mode. Defaults to 30 minutes. Set to 0 to disable. Periodic check-ins briefly pause capture."
+        description: "Send a check-in to Vitoconnect before capture starts and after this many minutes without a control request in shared adapter mode. Defaults to 60 minutes. Set to 0 to disable. Periodic check-ins briefly pause capture."
       log_level:
         name: Log Level
         description: "ViLocal log verbosity"

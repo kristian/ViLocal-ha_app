@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.3] - 2026-11-28
+
+> [!NOTE]
+> The update should fix "Repeater unavailable" errors in ViCare.
+
+- Bump ViLocal to 3.7.5 and ember-router to 2.4.2. MQTT discovery now uses the app's configured discovery prefix. [Upstream changes](https://github.com/kristian/ViLocal/compare/v3.7.3...v3.7.5)
+- Enable coordinator responses and default to the `UBISYS_TECHNOLOGIES_GMBH` manufacturer code in both control modes. Enable automatic reconnects by default for dedicated adapters.
+
 ## [2.3.2] - 2026-11-26
 
 - Bump ViLocal to 3.7.3. Radiator valve position estimates adapt to new readings and reuse the learned range after an inconclusive calibration. [Upstream changes](https://github.com/kristian/ViLocal/compare/v3.7.2...v3.7.3)

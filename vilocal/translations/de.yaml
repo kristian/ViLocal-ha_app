@@ -128,10 +128,10 @@ configuration:
         description: "Optionale Kommandozeilenargumente für das gewählte Mitschnittwerkzeug (z. B. -n -vvv -s 0 für tcpdump oder -v -P 10 für ember-sniff)"
       control_add_cli_args:
         name: Zusätzliche Argumente für die Steuerung
-        description: "Optionale Kommandozeilenargumente für ember-router bei aktivierter Steuerung (z. B. -v)"
+        description: "Optionale Argumente für ember-router, etwa -v. Mit -m kannst du den beim Koppeln verwendeten Herstellercode angeben. Standardmäßig verwendet die App UBISYS_TECHNOLOGIES_GMBH."
       router_keepalive_minutes:
         name: Keepalive bei gemeinsam genutztem Adapter (Minuten)
-        description: "Der gemeinsam genutzte Adapter meldet sich vor dem Mitschnitt bei Vitoconnect und danach, wenn für die eingestellte Dauer kein Steuerbefehl eingeht. Standardmäßig sind es 30 Minuten. Mit 0 deaktivierst du das Keepalive. Weitere Meldungen unterbrechen den Mitschnitt kurz."
+        description: "Der gemeinsam genutzte Adapter meldet sich vor dem Mitschnitt bei Vitoconnect und danach, wenn für die eingestellte Dauer kein Steuerbefehl eingeht. Standardmäßig sind es 60 Minuten. Mit 0 deaktivierst du das Keepalive. Weitere Meldungen unterbrechen den Mitschnitt kurz."
       log_level:
         name: Protokollstufe
         description: "Detailgrad der ViLocal-Protokollierung"

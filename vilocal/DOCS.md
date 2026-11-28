@@ -98,7 +98,7 @@ MQTT broker settings:
 
 - Broker URL (example: mqtt://192.168.1.10:1883)
 - Username/password if required
-- Topic and discovery prefix can usually stay at defaults
+- Topic and discovery prefix can usually stay at their defaults. If you set a custom Discovery Prefix, use the same prefix in Home Assistant's MQTT integration.
 
 #### B. Device List Settings (Optional, Recommended)
 
@@ -127,8 +127,8 @@ Only change advanced options when you have a clear reason:
 - Buffer format: keep default unless integration requires another format
 - Publish unknown devices: enable if you want data from unlisted devices
 - Unwrap layers: packet parsing tuning for special setups
-- Additional Control CLI Arguments passes flags such as `-v` to ember-router when control is enabled. Use `-gg` for reconnects with a dedicated adapter. In shared mode, the router waits five seconds after reconnecting for each request. Use `--settle-delay` to change the delay in milliseconds.
-- Shared Router Keepalive (`advanced.router_keepalive_minutes`) defaults to 30 minutes. In shared mode, the router checks in with Vitoconnect before capture starts and after that interval without a control request. Periodic check-ins briefly pause capture. Set it to `0` to disable keepalive.
+- Additional Control CLI Arguments passes flags such as `-v` to ember-router when control is enabled. Dedicated adapters reconnect automatically with `-gg` by default. In shared mode, the router waits five seconds after reconnecting for each request. Use `--settle-delay` to change the delay in milliseconds.
+- Shared Router Keepalive (`advanced.router_keepalive_minutes`) defaults to 60 minutes. In shared mode, the router checks in with Vitoconnect before capture starts and after that interval without a control request. It listens for follow-up requests for five seconds after each check-in. Set it to `0` to disable keepalive.
 
 #### D. Thermostat Control (Optional)
 
@@ -136,7 +136,9 @@ Control lets you change a radiator thermostat's heating setpoint or a floor ther
 
 **Set-up (required once, outside of this app):**
 
-The adapter used for control must be joined to your ViCare network as a repeater before enabling control. This cannot be done from within the app. On a machine that can reach the adapter (with Node.js, `ember-router` and `zbtk` installed), follow [Enable Thermostat Writes](https://github.com/kristian/ViLocal#5-optional-enable-thermostat-writes) in the ViLocal instructions ("Set Up Ember Router"). In short: generate an install code, derive the link key, `ember-router reset`, add a "ViCare Repeater (Unterputz)" in the ViCare app using the adapter's EUI64 and the install code, then run `ember-router join`. Stop anything else using the adapter while pairing.
+The adapter used for control must be joined to your ViCare network as a repeater before enabling control. This cannot be done from within the app. On a machine that can reach the adapter (with Node.js, `ember-router` and `zbtk` installed), follow [Enable Thermostat Writes](https://github.com/kristian/ViLocal/blob/v3.7.5/README.md#5-optional-enable-thermostat-writes) in the ViLocal instructions ("Set Up Ember Router"). In short: generate an install code, derive the link key, `ember-router reset`, add a "ViCare Repeater (Unterputz)" in the ViCare app using the adapter's EUI64 and the install code, then run `ember-router join`. Stop anything else using the adapter while pairing.
+
+When thermostat control is enabled, the app passes `--answer-coordinator-requests` and defaults the manufacturer code to `UBISYS_TECHNOLOGIES_GMBH`. If your adapter was paired with a different manufacturer code, set it with `-m` in **Additional Control CLI Arguments**.
 
 Then enable control in the app configuration (**Thermostat Control**). Whether the capture adapter is shared depends on the Dedicated Control Interface / Path setting:
 

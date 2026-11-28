@@ -8,7 +8,7 @@ MQTT_URL=$(bashio::config 'mqtt.url')
 MQTT_USERNAME=$(bashio::config 'mqtt.username')
 MQTT_PASSWORD=$(bashio::config 'mqtt.password')
 MQTT_TOPIC=$(bashio::config 'mqtt.topic')
-MQTT_DISCOVERY_PREFIX=$(bashio::config 'mqtt.device_discovery_prefix')
+MQTT_DISCOVERY_PREFIX=$(bashio::config 'mqtt.device_discovery_prefix' homeassistant)
 CAPTURE_SOURCE=$(bashio::config 'capture.source')
 CAPTURE_INTERFACE=$(bashio::config 'capture.interface')
 CAPTURE_CHANNEL=$(bashio::config 'capture.channel')
@@ -22,7 +22,7 @@ UNWRAP_LAYERS=$(jq -c '.advanced.unwrap_layers // []' '/data/options.json')
 CONTROL_ENABLED=$(bashio::config 'control.enabled')
 CONTROL_INTERFACE=$(bashio::config 'control.dedicated_interface')
 CONTROL_CLI_ARGS=$(bashio::config 'advanced.control_add_cli_args')
-ROUTER_KEEPALIVE_MINUTES=$(bashio::config 'advanced.router_keepalive_minutes' 30)
+ROUTER_KEEPALIVE_MINUTES=$(bashio::config 'advanced.router_keepalive_minutes' 60)
 LANGUAGE=$(bashio::config 'advanced.language' en)
 
 # Validate required configuration
@@ -42,6 +42,19 @@ if [ -n "$CONTROL_CLI_ARGS" ] && [ "$CONTROL_CLI_ARGS" != "null" ]; then
 fi
 if [ "$CONTROL_ENABLED" = "true" ]; then
     CONTROL_ENABLED_TOML=true
+    CONTROL_DEFAULT_ARGS=(--answer-coordinator-requests)
+    MANUFACTURER_ARGS=(-m UBISYS_TECHNOLOGIES_GMBH)
+    RECONNECT_ARGS=(-gg)
+    for arg in "${CONTROL_EXTRA_ARGS[@]}"; do
+        case "$arg" in
+            -m*|--manufacturer-code|--manufacturer-code=*) MANUFACTURER_ARGS=() ;;
+        esac
+        if [[ "$arg" == --graceful || "$arg" =~ ^-[gv]*g[gv]*$ ]]; then
+            RECONNECT_ARGS=()
+        fi
+    done
+    CONTROL_DEFAULT_ARGS+=("${MANUFACTURER_ARGS[@]}")
+
     if [ -z "$CONTROL_INTERFACE" ] || [ "$CONTROL_INTERFACE" = "null" ]; then
         CONTROL_MODE="shared"
         if [ "$CAPTURE_SOURCE" != "embersniff" ]; then
@@ -72,9 +85,13 @@ if [ "$CONTROL_ENABLED" = "true" ]; then
     else
         CONTROL_MODE="dedicated"
         CONTROL_ADAPTER="$CONTROL_INTERFACE"
+        CONTROL_DEFAULT_ARGS+=("${RECONNECT_ARGS[@]}")
     fi
 
-    CONTROL_PREFIX+=(--router ember-router -p "$CONTROL_ADAPTER" "${CONTROL_EXTRA_ARGS[@]}" --)
+    CONTROL_PREFIX+=(
+        --router ember-router -p "$CONTROL_ADAPTER"
+        "${CONTROL_DEFAULT_ARGS[@]}" "${CONTROL_EXTRA_ARGS[@]}" --
+    )
     bashio::log.info "Thermostat control enabled (mode: $CONTROL_MODE, adapter: $CONTROL_ADAPTER)"
 fi
 
@@ -106,7 +123,7 @@ url = "$MQTT_URL"
 username = "$MQTT_USERNAME"
 password = "$MQTT_PASSWORD"
 topic = "$MQTT_TOPIC"
-device_discovery_prefix = "$MQTT_DISCOVERY_PREFIX"
+device_discovery_prefix = "${MQTT_DISCOVERY_PREFIX:-homeassistant}"
 router_requests = $CONTROL_ENABLED_TOML
 
 EOF
